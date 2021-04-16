@@ -13,6 +13,8 @@ namespace CuteNoisesBot
 {
     public class NoiseModule : ModuleBase<SocketCommandContext>
     {
+        private readonly NoiseService _noise;
+        
         //private readonly ConcurrentDictionary<ulong, IAudioClient> _connectedChannels =
         //new ConcurrentDictionary<ulong, IAudioClient>();
 
@@ -25,7 +27,7 @@ namespace CuteNoisesBot
         public NoiseModule(DiscordSocketClient client)
         {
             _client = client;
-            //_client.UserVoiceStateUpdated += NoiseOnEmptyAnnounce;
+            Console.WriteLine(_client);
         }
         
         [Command("join", RunMode = RunMode.Async)]
@@ -56,8 +58,6 @@ namespace CuteNoisesBot
         [RequireOwner]
         public async Task ManualLeave()
         {
-            
-            
             await LeaveVoice();
         }
 
@@ -103,7 +103,7 @@ namespace CuteNoisesBot
             _audioClient = null;
         }
         
-        public async Task AnnounceNoise()
+        private async Task AnnounceNoise()
         {
             string path = "Klee_bombbomb.mp3";
 
@@ -137,28 +137,39 @@ namespace CuteNoisesBot
             }
         }
 
-        public async Task NoiseOnEmptyAnnounce(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)
+        public async Task CuteNoise(SocketUser user)
         {
             Console.WriteLine("A user has joined, left or switched voice channel");
 
-            //var channel = (user as IGuildUser)?.VoiceChannel;
-            var channel = state1.VoiceChannel;
-
-            //If user is not in a channel we ignore this event
+            //if the client that joined is self or bot, ignore this event
+            if (user.IsBot) return;
+            
+            //if bot is currently in a channel, ignore this event
+            var isBotInChannel = ((_client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null;
+            if (isBotInChannel)
+            {
+                Console.WriteLine("Bot is currently in a channel. CuteNoiseAnnounce Event ignored.");
+                return;
+            }
+            
+            //If user is not in a channel (aka left the channel) we ignore this event
+            var channel = (user as IGuildUser)?.VoiceChannel;
             if (channel == null) return;
 
-            //if the channel already has at least one user prior to current user joining, ignore this event
-            if (channel.Users.Count != 1) return;
-
-            //if bot is currently in a channel, ignore this event
-            if (_connectedVoiceChannel != null) return;
-
             Console.WriteLine($"{user.Username} joined a voice channel - {channel.Name}");
+            
+            //if the channel already has at least one user prior to current user joining, ignore this event
+            if ((channel as SocketVoiceChannel)?.Users.Count > 2)
+            {
+                Console.WriteLine($"{channel.Name} currently has more than 1 user, ignore this event call.");
+                return;
+            }
+
             Console.WriteLine($"Voice channel currently only has that user");
-            Console.WriteLine($"Bot will now attempt to join the channel");
+            Console.WriteLine($"Bot will now attempt to join the channel and play cute announcement");
 
             await JoinVoice(channel);
-            await Task.Delay(1000);
+           // await Task.Delay(1000);
             await AnnounceNoise();
             await LeaveVoice();
         }
