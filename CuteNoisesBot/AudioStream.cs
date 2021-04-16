@@ -2,7 +2,7 @@
 
 namespace CuteNoisesBot
 {
-    public class Audio
+    public class AudioStream
     {
         public static Process CreateStream(string path)
         {
