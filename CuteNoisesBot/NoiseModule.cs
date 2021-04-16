@@ -13,7 +13,7 @@ namespace CuteNoisesBot
 {
     public class NoiseModule : ModuleBase<SocketCommandContext>
     {
-        private readonly NoiseService _noise;
+        //private readonly NoiseService _noise;
         
         //private readonly ConcurrentDictionary<ulong, IAudioClient> _connectedChannels =
         //new ConcurrentDictionary<ulong, IAudioClient>();
@@ -110,25 +110,34 @@ namespace CuteNoisesBot
             // if (_connectedChannels.TryGetValue(Context.Guild.Id, out IAudioClient audioClient))
             if (_audioClient != null)
             {
-                Console.WriteLine($"Attempting to decode audio file {path}.");
-                //var output = AudioStream.CreateStream(path).StandardOutput.BaseStream;
-                using (var ffmpeg = AudioStream.CreateStream(path))
-                using (var output = ffmpeg.StandardOutput.BaseStream)
-
-                using (var discord = _audioClient.CreatePCMStream(AudioApplication.Voice))
+                await Task.Run(async () =>
                 {
-                    try { await output.CopyToAsync(discord); }
-                    finally { await discord.FlushAsync(); }
-                }
-                //Console.WriteLine($"Output Stream created: {output}");
-                //var stream = _audioClient.CreateDirectPCMStream(AudioApplication.Mixed);
-                //Console.WriteLine($"PCM stream created {stream}.");
-                //await output.CopyToAsync(stream);
-                Console.WriteLine($"Output stream copied.");
-                //await stream.FlushAsync().ConfigureAwait(false);
-                Console.WriteLine("Flushing stream.");
-                
- 
+                    Console.WriteLine($"Attempting to decode audio file {path}.");
+                    //var output = AudioStream.CreateStream(path).StandardOutput.BaseStream;
+                    using (var ffmpeg = AudioStream.CreateStream(path))
+                    using (var output = ffmpeg.StandardOutput.BaseStream)
+
+                    using (var discord = _audioClient.CreatePCMStream(AudioApplication.Voice))
+                    {
+                        try
+                        {
+                            await output.CopyToAsync(discord);
+                        }
+                        finally
+                        {
+                            await discord.FlushAsync();
+                        }
+                    }
+
+                    //Console.WriteLine($"Output Stream created: {output}");
+                    //var stream = _audioClient.CreateDirectPCMStream(AudioApplication.Mixed);
+                    //Console.WriteLine($"PCM stream created {stream}.");
+                    //await output.CopyToAsync(stream);
+                    Console.WriteLine($"Output stream copied.");
+                    //await stream.FlushAsync().ConfigureAwait(false);
+                    Console.WriteLine("Flushing stream.");
+
+                });
             }
 
             else
