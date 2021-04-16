@@ -2,12 +2,12 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Audio;
 using Discord.Commands;
 using Discord.WebSocket;
-using DiscordExample;
 
 namespace CuteNoisesBot
 {
@@ -25,18 +25,17 @@ namespace CuteNoisesBot
         public NoiseModule(DiscordSocketClient client)
         {
             _client = client;
-            _client.UserVoiceStateUpdated += NoiseOnEmptyAnnounce;
+            //_client.UserVoiceStateUpdated += NoiseOnEmptyAnnounce;
         }
-
+        
         [Command("join", RunMode = RunMode.Async)]
+        [RequireOwner]
         public async Task ManualJoin()
         {
             //await JoinVoice((Context.User as IGuildUser)?.VoiceChannel);
 
-            IVoiceChannel voiceChannel = null;
-
             //Get audio channel
-            voiceChannel ??= (Context.User as IGuildUser)?.VoiceChannel;
+            var voiceChannel = (Context.User as IGuildUser)?.VoiceChannel;
             if (voiceChannel == null)
             {
                 await Context.Channel.SendMessageAsync(
@@ -54,15 +53,18 @@ namespace CuteNoisesBot
         }
 
         [Command("leave")]
+        [RequireOwner]
         public async Task ManualLeave()
         {
-            //await LeaveVoice();
+            
+            
+            await LeaveVoice();
         }
 
         private async Task JoinVoice(IVoiceChannel channel)
         {
-            _audioClient = await channel.ConnectAsync(true);
             _connectedVoiceChannel = channel;
+            _audioClient = await channel.ConnectAsync(true);
         }
 
         private async Task LeaveVoice()
@@ -81,7 +83,6 @@ namespace CuteNoisesBot
             // var botVoiceChannel = (await Context.Channel.GetUserAsync(Context.Client.CurrentUser.Id) as IGuildUser)
             //     ?.VoiceChannel;
             //
-            // //if bot is not in a voice channel we exit
             // if (botVoiceChannel == null)
             // {
             //     Console.WriteLine("Bot is not in a voice channel. Code Exit.");
@@ -89,6 +90,7 @@ namespace CuteNoisesBot
             // }
             //
             // //Check if command user and bot are in the same channel
+            // //if bot is not in a voice channel we exit
             // //And execute leave voice channel if true
             // if (userVoiceChannel.Id == botVoiceChannel.Id)
             // {

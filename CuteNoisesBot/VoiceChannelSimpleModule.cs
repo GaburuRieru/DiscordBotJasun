@@ -8,7 +8,8 @@ namespace CuteNoisesBot
     public class VoiceChannelSimpleModule : ModuleBase<SocketCommandContext>
     {
         // The command's Run Mode MUST be set to RunMode.Async, otherwise, being connected to a voice channel will block the gateway thread.
-        [Command("join", RunMode = RunMode.Async)]
+        [Command("testjoin", RunMode = RunMode.Async)]
+        [RequireOwner]
         public async Task JoinVoiceAsync(IVoiceChannel voiceChannel = null)
         {
             //Get audio channel
@@ -27,7 +28,8 @@ namespace CuteNoisesBot
         }
         
         
-        [Command("leave")]
+        [Command("testleave")]
+        [RequireOwner]
         public async Task LeaveVoiceAsync()
         {
             //Get the voice channel the command user is in
