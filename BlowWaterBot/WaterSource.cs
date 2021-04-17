@@ -38,7 +38,8 @@ namespace BlowWaterBot
 
             else
             {
-                LogContent($"Unable to locate {_fileName}");
+                throw new Exception($"Unable to locate {directory}.");
+                //LogContent($"Unable to locate {_fileName}");
             }
         }
 
@@ -61,6 +62,16 @@ namespace BlowWaterBot
 
             //Initialize Random
             _random = new Random();
+            
+        }
+
+        public void AddNewWater(string newWater)
+        {
+            using (StreamWriter writer = new StreamWriter(_filePath))
+            using (CsvWriter csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                
+            }
         }
 
         public string GetRandomWater()
@@ -90,7 +101,7 @@ namespace BlowWaterBot
     }
 
 
-    internal class WaterContent
+    public struct WaterContent
     {
         public string BlowWaterContent { get; set; }
         public string Contributor { get; set; }

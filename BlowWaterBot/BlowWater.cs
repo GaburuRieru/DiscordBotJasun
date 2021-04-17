@@ -2,7 +2,9 @@
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BlowWaterBot
 {
@@ -15,24 +17,23 @@ namespace BlowWaterBot
         => new BlowWater().MainAsync().GetAwaiter().GetResult();
 
         private DiscordSocketClient _client;
-
         private const string YaokunCommand = "!water";
         private WaterSource _waterSource;
+        private CommandHandler _commandHandler;
+        private CommandService _commands;
+        private IServiceProvider _services;
 
         private async Task MainAsync()
         {
-            // if (TEST_MODE)
-            // {
-            //     await TestMode();
-            //
-            //     return;
-            // }
+
             
             _client = new DiscordSocketClient();
 
             _client.Log += Log;
             _client.Ready += OnReady;
             
+            
+            await Initialize();
             
             //  You can assign your bot token to a string, and pass that in to connect.
             //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository
@@ -46,7 +47,7 @@ namespace BlowWaterBot
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
 
-            await Initialize();
+  
             
             //Block this task until the program is closed.
             await Task.Delay(-1);
@@ -57,18 +58,16 @@ namespace BlowWaterBot
             _waterSource = new WaterSource();
             await _waterSource.Initialization();
 
-            // return Task.CompletedTask;
+            _commands = new CommandService();
+            _services = ConfigureServices();
+            _commandHandler = new CommandHandler(_client, _commands, _services);
+
+            await _commandHandler.InstallCommandsAsync();
         }
         
         private async Task OnReady()
         {
-            //TestMessageSendAsync();
-            //_yaoKun = new YaoKun();
-
-    
             
-            // _client.SetActivityAsync(
-            //     new Game("Blowing Water", ActivityType.Watching, ActivityProperties.None, "吹水"));
             await _client.SetGameAsync(YaokunCommand, null, ActivityType.Listening);
             _client.MessageReceived += SendRandomBlowWater;
             return;
@@ -115,6 +114,13 @@ namespace BlowWaterBot
         // {
         //    //SocketChannel channel = _client.GetGroupChannelsAsync()
         // }
+        
+        private ServiceProvider ConfigureServices() => new ServiceCollection()
+            .AddSingleton<DiscordSocketClient>()
+            .AddSingleton<CommandHandler>()
+            .AddSingleton<CommandService>()
+            .AddSingleton<WaterModule>()
+            .BuildServiceProvider();
 
         #region Logging
 
