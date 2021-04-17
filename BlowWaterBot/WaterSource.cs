@@ -26,7 +26,7 @@ namespace BlowWaterBot
             var directory = Directory.GetCurrentDirectory();
 
             LogContent($"Directory is : {directory}");
-            directory = directory + "/" + _fileName;
+            directory = directory + "" + _fileName;
 
             if (File.Exists(directory))
             {
@@ -103,7 +103,7 @@ namespace BlowWaterBot
 
     public struct WaterContent
     {
-        public string BlowWaterContent { get; set; }
-        public string Contributor { get; set; }
+        public string BlowWaterContent { get;  }
+        public string Contributor { get; }
     }
 }

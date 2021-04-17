@@ -37,7 +37,7 @@ namespace BlowWaterBot
             
             //  You can assign your bot token to a string, and pass that in to connect.
             //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository
-            var token = "ODMxMDg0NTcxNTQ5NjMwNDc3.YHQF0g.TF6YyaFj4Pkc2DY8pdCDGoOLMb4";
+            var token = await TokenHandler.GetTokenAsync();
             
             // Some alternative options would be to keep your token in an Environment Variable or a standalone file.
             // var token = Environment.GetEnvironmentVariable("NameOfYourEnvironmentVariable");
@@ -55,8 +55,8 @@ namespace BlowWaterBot
 
         private async Task Initialize()
         {
-            _waterSource = new WaterSource();
-            await _waterSource.Initialization();
+            //_waterSource = new WaterSource();
+            //await _waterSource.Initialization();
 
             _commands = new CommandService();
             _services = ConfigureServices();
@@ -69,7 +69,7 @@ namespace BlowWaterBot
         {
             
             await _client.SetGameAsync(YaokunCommand, null, ActivityType.Listening);
-            _client.MessageReceived += SendRandomBlowWater;
+            //_client.MessageReceived += SendRandomBlowWater;
             return;
         }
 
@@ -120,6 +120,7 @@ namespace BlowWaterBot
             .AddSingleton<CommandHandler>()
             .AddSingleton<CommandService>()
             .AddSingleton<WaterModule>()
+            .AddSingleton<WaterSource>()
             .BuildServiceProvider();
 
         #region Logging
