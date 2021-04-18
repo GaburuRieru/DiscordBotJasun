@@ -5,78 +5,119 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CsvHelper;
+using CsvHelper.Configuration;
+using Discord;
+using Discord.WebSocket;
 
 namespace BlowWaterBot
 {
     public class WaterSource
     {
+        // public WaterSource()
+        // {
+        //     Initialize();
+        // }
+        
         private const string _fileName = "Water.csv";
 
-        //private string _directory;
-        private string _filePath;
+        private string _filePath = "";
 
-        private List<WaterContent> _blowWaters;
-        private Queue<WaterContent> _usedWater;
+        private List<WaterContent> _blowWaters = new List<WaterContent>();
+        private Queue<WaterContent> _usedWater = new Queue<WaterContent>();
         private int _usedQueueLength;
         private const float _usedQueueLengthFraction = 0.6f;
         private Random _random;
 
-        public async Task Initialization()
+        public async Task Initialize()
         {
-            var directory = Directory.GetCurrentDirectory();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), _fileName);
 
-            LogContent($"Directory is : {directory}");
-            directory = directory + "" + _fileName;
-
-            if (File.Exists(directory))
+            if (!File.Exists(path))
             {
-                _filePath = directory;
-                LogContent($"$File '{_fileName}' exists");
-
-                await ReadCSV();
+                throw new Exception($"Unable to locate {path}.");
             }
 
-            else
-            {
-                throw new Exception($"Unable to locate {directory}.");
-                //LogContent($"Unable to locate {_fileName}");
-            }
+            _filePath = path;
+            
+            //Iniitalize usedQueue
+            _usedWater = new Queue<WaterContent>();
+            
+            //LoadWater from CSV
+            await ReadCSV();
+            
+            LogContent("Water source initialized.");
         }
 
         private async Task ReadCSV()
         {
+            if (_blowWaters.Count > 0) _blowWaters.Clear();
+
             LogContent("Reading from CSV File...");
 
-            using (StreamReader reader = new StreamReader(_filePath))
+            CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                ShouldQuote = (quote) => true,
+            };
+
+            await using (FileStream stream = File.OpenRead(_filePath))
+            using (StreamReader reader = new StreamReader(stream))
             using (CsvReader csvReader = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
-                _blowWaters = csvReader.GetRecords<WaterContent>().ToList();
+                // _blowWaters = csvReader.GetRecords<WaterContent>().ToList();
+                var recordsAsync =  csvReader.GetRecordsAsync<WaterContent>();
+                _blowWaters = await recordsAsync.ToListAsync();
             }
 
             LogContent("Finished reading from CSV File.");
             LogContent("Contents from CSV File cached to memory");
 
-            //Initialize usedQueue
+            //update usedqueue
+            _usedWater.Clear();
             _usedQueueLength = (int) Math.Round(_blowWaters.Count * _usedQueueLengthFraction, 0);
-            _usedWater = new Queue<WaterContent>(_usedQueueLength);
 
             //Initialize Random
             _random = new Random();
+
+        }
+
+
+        public async Task AddLineToCsv(string water, string contributor, IMessageChannel channel)
+        {
+            string finalwater = $"{water}";
             
-        }
-
-        public void AddNewWater(string newWater)
-        {
-            using (StreamWriter writer = new StreamWriter(_filePath))
-            using (CsvWriter csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                
+                ShouldQuote = (quote) => true,
+                HasHeaderRecord = false,
+            };
+            
+            await using (FileStream stream = File.Open(_filePath, FileMode.Append))
+            using (StreamWriter writer = new StreamWriter(stream))
+            using (CsvWriter csvWriter = new CsvWriter(writer, configuration))
+            {
+                csvWriter.WriteRecord<WaterContent>(new WaterContent(finalwater, contributor));
             }
+            
+            
+            LogContent("Added new water content into file Water.csv");
+            await channel.SendMessageAsync($"{contributor} added \"{water}\"");
+            
+            await ReloadWater();
         }
 
-        public string GetRandomWater()
+        public async Task ReloadWater()
         {
-            if (_blowWaters == null || _blowWaters.Count == 0) return "No water here";
+            LogContent("Reloading water content.");
+            await ReadCSV();
+        }
+
+        public async Task SayWater(ISocketMessageChannel channel)
+        {
+            if (_blowWaters == null || _blowWaters.Count == 0)
+            {
+                LogContent("No water available to blow.");
+                return;
+            }
 
             int x = _random.Next(0, _blowWaters.Count);
             WaterContent content = _blowWaters[x];
@@ -90,20 +131,26 @@ namespace BlowWaterBot
             _blowWaters.RemoveAt(x);
             _usedWater.Enqueue(content);
 
-
-            return content.BlowWaterContent;
+            await channel.SendMessageAsync(content.BlowWaterContent);
+            return;
         }
 
-        public void LogContent(string logmsg)
+        private void LogContent(string logmsg)
         {
             Console.WriteLine(logmsg);
         }
     }
 
 
-    public struct WaterContent
+    public  struct WaterContent
     {
-        public string BlowWaterContent { get;  }
-        public string Contributor { get; }
+        public WaterContent(string water, string contributor)
+        {
+            BlowWaterContent = water;
+            Contributor = contributor;
+        }
+
+        public string BlowWaterContent { get; set; }
+        public string Contributor { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace CuteNoisesBot
     public class NoiseModule : ModuleBase<SocketCommandContext>
     {
         //private readonly NoiseService _noise;
-        
+
         //private readonly ConcurrentDictionary<ulong, IAudioClient> _connectedChannels =
         //new ConcurrentDictionary<ulong, IAudioClient>();
 
@@ -24,12 +24,12 @@ namespace CuteNoisesBot
         private DiscordSocketClient _client;
         //private readonly NoiseService _service;
 
-        public NoiseModule(DiscordSocketClient client)
-        {
-            _client = client;
-            Console.WriteLine(_client);
-        }
-        
+        // public NoiseModule(DiscordSocketClient client)
+        // {
+        //     _client = client;
+        //     Console.WriteLine(_client);
+        // }
+
         [Command("join", RunMode = RunMode.Async)]
         [RequireOwner]
         public async Task ManualJoin()
@@ -102,104 +102,110 @@ namespace CuteNoisesBot
             _connectedVoiceChannel = null;
             _audioClient = null;
         }
-        
+
         private async Task AnnounceNoise()
         {
             string path = "Klee_bombbomb.mp3";
 
             // if (_connectedChannels.TryGetValue(Context.Guild.Id, out IAudioClient audioClient))
-            if (_audioClient != null)
+            //if (_audioClient != null)
             {
-                await Task.Run(async () =>
+                // await Task.Run(async () =>
+                //{
+                Console.WriteLine($"Attempting to decode audio file {path}.");
+                //var output = AudioStream.CreateStream(path).StandardOutput.BaseStream;
+                using (var ffmpeg = AudioStream.CreateStream(path))
+                using (var output = ffmpeg.StandardOutput.BaseStream)
+
+                using (var discord = _audioClient.CreatePCMStream(AudioApplication.Mixed))
                 {
-                    Console.WriteLine($"Attempting to decode audio file {path}.");
-                    //var output = AudioStream.CreateStream(path).StandardOutput.BaseStream;
-                    using (var ffmpeg = AudioStream.CreateStream(path))
-                    using (var output = ffmpeg.StandardOutput.BaseStream)
-
-                    using (var discord = _audioClient.CreatePCMStream(AudioApplication.Voice))
+                    try
                     {
-                        try
-                        {
-                            await output.CopyToAsync(discord);
-                        }
-                        finally
-                        {
-                            await discord.FlushAsync();
-                        }
+                        await output.CopyToAsync(discord);
                     }
+                    finally
+                    {
+                        await discord.FlushAsync();
+                    }
+                }
 
-                    //Console.WriteLine($"Output Stream created: {output}");
-                    //var stream = _audioClient.CreateDirectPCMStream(AudioApplication.Mixed);
-                    //Console.WriteLine($"PCM stream created {stream}.");
-                    //await output.CopyToAsync(stream);
-                    Console.WriteLine($"Output stream copied.");
-                    //await stream.FlushAsync().ConfigureAwait(false);
-                    Console.WriteLine("Flushing stream.");
+                //Console.WriteLine($"Output Stream created: {output}");
+                //var stream = _audioClient.CreateDirectPCMStream(AudioApplication.Mixed);
+                //Console.WriteLine($"PCM stream created {stream}.");
+                //await output.CopyToAsync(stream);
+                Console.WriteLine($"Output stream copied.");
+                //await stream.FlushAsync().ConfigureAwait(false);
+                Console.WriteLine("Flushing stream.");
 
-                });
-            }
+                // });
+                //}
 
-            else
-            {
-                Console.WriteLine($"No audio client found.");
+                // else
+                // {
+                //     Console.WriteLine($"No audio client found.");
+                // }
             }
         }
 
-        public async Task CuteNoise(SocketUser user)
+        public async Task CuteNoise(SocketUser user, DiscordSocketClient client)
         {
-            Console.WriteLine("A user has joined, left or switched voice channel");
+            // Console.WriteLine("A user has joined, left or switched voice channel");
 
             //if the client that joined is self or bot, ignore this event
-            if (user.IsBot) return;
-            
+            //if (user.IsBot) return;
+
             //if bot is currently in a channel, ignore this event
-            var isBotInChannel = ((_client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null;
+            var isBotInChannel = ((client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null;
             if (isBotInChannel)
             {
                 Console.WriteLine("Bot is currently in a channel. CuteNoiseAnnounce Event ignored.");
                 return;
             }
-            
+
             //If user is not in a channel (aka left the channel) we ignore this event
             var channel = (user as IGuildUser)?.VoiceChannel;
             if (channel == null) return;
 
             Console.WriteLine($"{user.Username} joined a voice channel - {channel.Name}");
-            
-            //if the channel already has at least one user prior to current user joining, ignore this event
-            if ((channel as SocketVoiceChannel)?.Users.Count > 2)
-            {
-                Console.WriteLine($"{channel.Name} currently has more than 1 user, ignore this event call.");
-                return;
-            }
 
-            Console.WriteLine($"Voice channel currently only has that user");
+            //if the channel already has at least one user prior to current user joining, ignore this event
+            // if ((channel as SocketVoiceChannel)?.Users.Count > 2)
+            // {
+            //     Console.WriteLine($"{channel.Name} currently has more than 1 user, ignore this event call.");
+            //     return;
+            // }
+
+            //Console.WriteLine($"Voice channel currently only has that user");
             Console.WriteLine($"Bot will now attempt to join the channel and play cute announcement");
 
-            await JoinVoice(channel);
-           // await Task.Delay(1000);
-            await AnnounceNoise();
-            await LeaveVoice();
+            // await Task.Run(async () =>
+            // {
+                await JoinVoice(channel);
+                // await Task.Delay(1000);
+                await AnnounceNoise();
+                await LeaveVoice();
+                // });
+
+
         }
 
-        private async Task SendNoise(string path)
-        {
-        }
+        // private async Task SendNoise(string path)
+        // {
+        // }
 
         [Command("play", RunMode = RunMode.Async)]
         public async Task TestPlay()
         {
             var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
-
             if (userVoice == null) return;
 
+            if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
+            
+                
             await JoinVoice(userVoice);
-          // await Task.Delay(2000);
+            // await Task.Delay(2000);
             await AnnounceNoise();
             await LeaveVoice();
         }
     }
-    
-    
 }

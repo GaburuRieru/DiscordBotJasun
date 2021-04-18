@@ -18,7 +18,7 @@ namespace BlowWaterBot
 
         private DiscordSocketClient _client;
         private const string YaokunCommand = "!water";
-        private WaterSource _waterSource;
+       // private WaterSource _waterSource;
         private CommandHandler _commandHandler;
         private CommandService _commands;
         private IServiceProvider _services;
@@ -62,6 +62,8 @@ namespace BlowWaterBot
             _services = ConfigureServices();
             _commandHandler = new CommandHandler(_client, _commands, _services);
 
+            await _services.GetService<WaterSource>().Initialize();
+
             await _commandHandler.InstallCommandsAsync();
         }
         
@@ -73,21 +75,21 @@ namespace BlowWaterBot
             return;
         }
 
-        private Task SendRandomBlowWater(SocketMessage message)
-        {
-            //SocketUserMessage userMessage = message as SocketUserMessage;
-
-            ISocketMessageChannel messageChannel = message.Channel;
-            string content = message.Content;
-            
-            if(content.Equals(YaokunCommand))
-            {
-                string water = _waterSource.GetRandomWater();
-                messageChannel.SendMessageAsync(water);
-            }
-            
-            return Task.CompletedTask;
-        }
+        // private Task SendRandomBlowWater(SocketMessage message)
+        // {
+        //     //SocketUserMessage userMessage = message as SocketUserMessage;
+        //
+        //     ISocketMessageChannel messageChannel = message.Channel;
+        //     string content = message.Content;
+        //     
+        //     if(content.Equals(YaokunCommand))
+        //     {
+        //         string water = _waterSource.SayWater();
+        //         messageChannel.SendMessageAsync(water);
+        //     }
+        //     
+        //     return Task.CompletedTask;
+        // }
         
         // private Task TestMessageSendAsync()
         // {
