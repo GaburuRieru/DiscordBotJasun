@@ -1,0 +1,26 @@
+﻿[
+  {
+    "Command": "horayo",
+    "Path": "horayo.mp3"
+  },
+  {
+    "Command":"iamcrazy",
+    "Path":"I am crazy.mp3"
+  },
+  {
+    "Command":"kokodayokrooz",
+    "Path":"kokodayo.ogg"
+  },
+  {
+    "Command":"kokodayokorone",
+    "Path":"kokodayo_korone.mp3"
+  },
+  {
+    "Command":"pekopeko",
+    "Path":"PEKOPEKOPEKOPEKO.mp3"
+  },
+  {
+    "Command":"yubi",
+    "Path":"yubi.ogg"
+  }
+]

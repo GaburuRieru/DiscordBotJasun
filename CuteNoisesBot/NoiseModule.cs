@@ -21,7 +21,7 @@ namespace CuteNoisesBot
         private IVoiceChannel _connectedVoiceChannel;
         private IAudioClient _audioClient;
 
-        private DiscordSocketClient _client;
+        //private DiscordSocketClient _client;
         //private readonly NoiseService _service;
 
         // public NoiseModule(DiscordSocketClient client)
@@ -58,16 +58,17 @@ namespace CuteNoisesBot
         [RequireOwner]
         public async Task ManualLeave()
         {
-            await LeaveVoice();
+            await LeaveVoice((Context.User as IGuildUser)?.VoiceChannel);
         }
 
-        private async Task JoinVoice(IVoiceChannel channel)
+        private async Task<IAudioClient> JoinVoice(IVoiceChannel channel)
         {
             _connectedVoiceChannel = channel;
-            _audioClient = await channel.ConnectAsync(true);
+            //_audioClient = await channel.ConnectAsync(true);
+            return await channel.ConnectAsync(true);
         }
 
-        private async Task LeaveVoice()
+        private async Task LeaveVoice(IVoiceChannel channel)
         {
             // //Get the voice channel the command user is in
             // var userVoiceChannel = (Context.User as IGuildUser)?.VoiceChannel;
@@ -98,14 +99,14 @@ namespace CuteNoisesBot
             //     Console.WriteLine($"Bot disconnected from {botVoiceChannel}");
             // }
 
-            await _connectedVoiceChannel.DisconnectAsync();
-            _connectedVoiceChannel = null;
+            await channel.DisconnectAsync();
+            //await _connectedVoiceChannel.DisconnectAsync();
+            //_connectedVoiceChannel = null;
             _audioClient = null;
         }
 
-        private async Task AnnounceNoise()
+        private async Task AnnounceNoise(IAudioClient audioClient, string path)
         {
-            string path = "Klee_bombbomb.mp3";
 
             // if (_connectedChannels.TryGetValue(Context.Guild.Id, out IAudioClient audioClient))
             //if (_audioClient != null)
@@ -115,18 +116,20 @@ namespace CuteNoisesBot
                 Console.WriteLine($"Attempting to decode audio file {path}.");
                 //var output = AudioStream.CreateStream(path).StandardOutput.BaseStream;
                 using (var ffmpeg = AudioStream.CreateStream(path))
-                using (var output = ffmpeg.StandardOutput.BaseStream)
+                await using (var output = ffmpeg.StandardOutput.BaseStream)
 
-                using (var discord = _audioClient.CreatePCMStream(AudioApplication.Mixed))
+                await using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
                 {
-                    try
-                    {
-                        await output.CopyToAsync(discord);
-                    }
-                    finally
-                    {
-                        await discord.FlushAsync();
-                    }
+                    await output.CopyToAsync(discord);
+                    await discord.FlushAsync().ConfigureAwait(false);
+                    // try
+                    // {
+                    //     await output.CopyToAsync(discord);
+                    // }
+                    // finally
+                    // {
+                    //     await discord.FlushAsync();
+                    // }
                 }
 
                 //Console.WriteLine($"Output Stream created: {output}");
@@ -180,32 +183,66 @@ namespace CuteNoisesBot
 
             // await Task.Run(async () =>
             // {
-                await JoinVoice(channel);
-                // await Task.Delay(1000);
-                await AnnounceNoise();
-                await LeaveVoice();
-                // });
-
-
+            IAudioClient voiceClient = await JoinVoice(channel);
+            // await Task.Delay(1000);
+            await AnnounceNoise(voiceClient, string.Empty);
+            await LeaveVoice(channel);
+            // });
         }
+
 
         // private async Task SendNoise(string path)
         // {
         // }
 
-        [Command("play", RunMode = RunMode.Async)]
-        public async Task TestPlay()
+        [Command("cute", RunMode = RunMode.Async)]
+        public async Task PlayKlee()
         {
             var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
             if (userVoice == null) return;
-
             if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
             
-                
-            await JoinVoice(userVoice);
+            string path = "Klee_bombbomb.mp3";
+
+            IAudioClient voiceClient = await JoinVoice(userVoice);
+
             // await Task.Delay(2000);
-            await AnnounceNoise();
-            await LeaveVoice();
+            await AnnounceNoise(voiceClient, path);
+            await LeaveVoice(userVoice);
+        }
+        
+        [Command("noise", RunMode = RunMode.Async)]
+        public async Task PlayNoise(string noise)
+        {
+            var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
+            if (userVoice == null) return;
+            if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
+            
+            string path = await NoiseLibrary.GetNoise(noise);
+
+            //Couldnt find any path to the noises, ignore this command
+            if (path == string.Empty) return;
+            
+            IAudioClient voiceClient = await JoinVoice(userVoice);
+
+            // await Task.Delay(2000);
+            await AnnounceNoise(voiceClient, path);
+            await LeaveVoice(userVoice);
+        }
+        
+        [Command("noise", RunMode = RunMode.Async)]
+        public async Task PlayNoiseInvalid(params string[] args)
+        {
+            if (args.Length == 0)
+            {
+                await Context.User.SendMessageAsync(await NoiseLibrary.GetAvailableCommands());
+                return;
+            }
+            
+            if (args.Length >= 2)
+            {
+                return;
+            }
         }
     }
 }
