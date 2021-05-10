@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CuteNoisesBot", "CuteNoises
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NovaBot", "NovaBot\NovaBot.csproj", "{20654D85-7121-44D1-B789-E4C41D06D6F5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HololivePlaySound", "HololivePlaySound\HololivePlaySound.csproj", "{BBE74C91-B86C-4E7A-8DB2-4F53C9CDD9CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotLibrary", "BotLibrary\BotLibrary.csproj", "{653A8AE0-6B47-407D-AC1B-FAF1CEFD322D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,5 +31,13 @@ Global
 		{20654D85-7121-44D1-B789-E4C41D06D6F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20654D85-7121-44D1-B789-E4C41D06D6F5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{20654D85-7121-44D1-B789-E4C41D06D6F5}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{BBE74C91-B86C-4E7A-8DB2-4F53C9CDD9CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBE74C91-B86C-4E7A-8DB2-4F53C9CDD9CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBE74C91-B86C-4E7A-8DB2-4F53C9CDD9CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBE74C91-B86C-4E7A-8DB2-4F53C9CDD9CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{653A8AE0-6B47-407D-AC1B-FAF1CEFD322D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{653A8AE0-6B47-407D-AC1B-FAF1CEFD322D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{653A8AE0-6B47-407D-AC1B-FAF1CEFD322D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{653A8AE0-6B47-407D-AC1B-FAF1CEFD322D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
