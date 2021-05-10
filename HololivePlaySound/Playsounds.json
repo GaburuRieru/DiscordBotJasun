@@ -1,0 +1,28 @@
+﻿[
+  { "Command": "horayo", "Path": "horayo.mp3"},
+  { "Command":"iamcrazy", "Path":"I am crazy.mp3"},
+  { "Command":"kokodayo", "Path":"kokodayo_korone.mp3"},
+  { "Command":"yubi", "Path":"yubi.ogg"},
+  { "Command": "yubi2", "Path": "yubi2.ogg"},
+  { "Command": "ohimdie",   "Path": "OhImdie.ogg"},
+  { "Command":"koroneBonk","Path":"koroneBonk.ogg"},
+
+  { "Command":"pekopeko", "Path":"PEKOPEKOPEKOPEKO.mp3"},
+
+  { "Command":"faq", "Path":"mikoFAQ.mp3"},
+
+  { "Command":"haachama", "Path":"hachama.ogg"},
+
+  { "Command":"rushia1", "Path":"rushia1.mp3"},
+
+  { "Command":"ahoy","Path":"ahoy.mp3"},
+
+  { "Command":"neneOhShit", "Path":"NeneOhShit.ogg"},
+
+  { "Command":"matanene","Path":"matanene1.ogg"},
+
+  { "Command":"ameREE", "Path":"ameliaREE.ogg"},
+
+  { "Command":"suiseiH","Path":"SuiseiHiHoney.ogg"},
+  { "Command":"haachamaH","Path":"haachamahoney.ogg"}
+]
