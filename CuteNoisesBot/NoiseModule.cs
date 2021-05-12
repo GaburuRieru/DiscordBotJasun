@@ -15,6 +15,7 @@ namespace CuteNoisesBot
     {
         //WARUNG BAKSO VOICE CHANNEL ID
         private const ulong _warungbakso = 719170777345294357;
+        private const ulong _botOwnerId = 120843233864581120;
         
         //private readonly NoiseService _noise;
 
@@ -218,23 +219,34 @@ namespace CuteNoisesBot
         public async Task PlayNoise(string noise)
         {
 
-            
-            var ownerExecuted = Context.User.Id == Context.Guild.Owner.Id;
+            var ownerExecuted = Context.User.Id == _botOwnerId;
             var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
             var botVoice = Context.Guild.CurrentUser.VoiceChannel;
+            
+            if (userVoice == null && ownerExecuted)
+            {
+                var bakso = Context.Guild.GetVoiceChannel(_warungbakso);
+                if (bakso == null) return;
+                var userCount = bakso.Users.Count; 
+                //Console.WriteLine($"Users in voice : {userCount}");
+
+                if (userCount == 0) return;
+
+                userVoice = bakso;
+
+            }
 
 
-            
-            if ((userVoice == null && !ownerExecuted) && Context.Guild.GetVoiceChannel(_warungbakso).Users.Count == 0) return;
-            
             if (botVoice != null)
             {
-                Console.WriteLine($"Bot is already in a voice channel {botVoice}");
+                //Console.WriteLine($"Bot is already in a voice channel {botVoice}");
                 return;
             }
             
             //if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
-
+            //Console.WriteLine("Attempting to start");
+            
+            
             string path = await NoiseLibrary.GetNoise(noise);
 
             //Couldnt find any path to the noises, ignore this command
