@@ -16,6 +16,7 @@ namespace HololivePlaySound
         //new ConcurrentDictionary<ulong, IAudioClient>();
 
         private const string CommandPhrase = "hololive";
+        
         //private IAudioClient _audioClient;
 
         //private IVoiceChannel _connectedVoiceChannel;
@@ -74,22 +75,19 @@ namespace HololivePlaySound
                 //{
                // Console.WriteLine($"Attempting to decode audio file {path}.");
                 //var output = AudioStream.CreateStream(path).StandardOutput.BaseStream;
-                using (var ffmpeg = AudioStreamProcess.CreateStream(path))
-                await using (var output = ffmpeg.StandardOutput.BaseStream)
-
-                await using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
-                {
-                    await output.CopyToAsync(discord);
-                    await discord.FlushAsync().ConfigureAwait(false);
-                    // try
-                    // {
-                    //     await output.CopyToAsync(discord);
-                    // }
-                    // finally
-                    // {
-                    //     await discord.FlushAsync();
-                    // }
-                }
+                using var ffmpeg = AudioStreamProcess.CreateStream(path);
+                await using var output = ffmpeg.StandardOutput.BaseStream;
+                await using var discord = audioClient.CreatePCMStream(AudioApplication.Mixed);
+                await output.CopyToAsync(discord);
+                await discord.FlushAsync().ConfigureAwait(false);
+                // try
+                // {
+                //     await output.CopyToAsync(discord);
+                // }
+                // finally
+                // {
+                //     await discord.FlushAsync();
+                // }
 
                 //Console.WriteLine($"Output Stream created: {output}");
                 //var stream = _audioClient.CreateDirectPCMStream(AudioApplication.Mixed);
@@ -176,9 +174,14 @@ namespace HololivePlaySound
             var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
             if (userVoice == null) return;
            // if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
-            
+           
            //if bot is currently in a voice channel ignore this command
-            if ((Context.Client.GetUser(Context.Client.CurrentUser.Id) as IGuildUser)?.VoiceChannel != null) return;
+           var voice = Context.Guild.CurrentUser.VoiceChannel;
+           if (voice != null)
+           {
+               Console.WriteLine($"Bot is currently in a voice channel {voice.Name} in guild {Context.Guild}");
+               return;
+           }
             
             var path = await PlaysoundLibrary.GetPlaysound(noise);
 

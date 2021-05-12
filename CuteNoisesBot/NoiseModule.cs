@@ -13,13 +13,16 @@ namespace CuteNoisesBot
 {
     public class NoiseModule : ModuleBase<SocketCommandContext>
     {
+        //WARUNG BAKSO VOICE CHANNEL ID
+        private const ulong _warungbakso = 719170777345294357;
+        
         //private readonly NoiseService _noise;
 
         //private readonly ConcurrentDictionary<ulong, IAudioClient> _connectedChannels =
         //new ConcurrentDictionary<ulong, IAudioClient>();
 
-        private IVoiceChannel _connectedVoiceChannel;
-        private IAudioClient _audioClient;
+        // private IVoiceChannel _connectedVoiceChannel;
+        // private IAudioClient _audioClient;
 
         //private DiscordSocketClient _client;
         //private readonly NoiseService _service;
@@ -63,7 +66,7 @@ namespace CuteNoisesBot
 
         private async Task<IAudioClient> JoinVoice(IVoiceChannel channel)
         {
-            _connectedVoiceChannel = channel;
+            //_connectedVoiceChannel = channel;
             //_audioClient = await channel.ConnectAsync(true);
             return await channel.ConnectAsync(true);
         }
@@ -102,7 +105,7 @@ namespace CuteNoisesBot
             await channel.DisconnectAsync();
             //await _connectedVoiceChannel.DisconnectAsync();
             //_connectedVoiceChannel = null;
-            _audioClient = null;
+           // _audioClient = null;
         }
 
         private async Task AnnounceNoise(IAudioClient audioClient, string path)
@@ -195,29 +198,43 @@ namespace CuteNoisesBot
         // {
         // }
 
-        [Command("cute", RunMode = RunMode.Async)]
-        public async Task PlayKlee()
-        {
-            var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
-            if (userVoice == null) return;
-            if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
-            
-            string path = "Klee_bombbomb.mp3";
-
-            IAudioClient voiceClient = await JoinVoice(userVoice);
-
-            // await Task.Delay(2000);
-            await AnnounceNoise(voiceClient, path);
-            await LeaveVoice(userVoice);
-        }
+        // [Command("cute", RunMode = RunMode.Async)]
+        // public async Task PlayKlee()
+        // {
+        //     var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
+        //     if (userVoice == null) return;
+        //     if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
+        //     
+        //     string path = "Klee_bombbomb.mp3";
+        //
+        //     IAudioClient voiceClient = await JoinVoice(userVoice);
+        //
+        //     // await Task.Delay(2000);
+        //     await AnnounceNoise(voiceClient, path);
+        //     await LeaveVoice(userVoice);
+        // }
         
         [Command("noise", RunMode = RunMode.Async)]
         public async Task PlayNoise(string noise)
         {
-            var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
-            if (userVoice == null) return;
-            if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
+
             
+            var ownerExecuted = Context.User.Id == Context.Guild.Owner.Id;
+            var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
+            var botVoice = Context.Guild.CurrentUser.VoiceChannel;
+
+
+            
+            if ((userVoice == null && !ownerExecuted) && Context.Guild.GetVoiceChannel(_warungbakso).Users.Count == 0) return;
+            
+            if (botVoice != null)
+            {
+                Console.WriteLine($"Bot is already in a voice channel {botVoice}");
+                return;
+            }
+            
+            //if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
+
             string path = await NoiseLibrary.GetNoise(noise);
 
             //Couldnt find any path to the noises, ignore this command
