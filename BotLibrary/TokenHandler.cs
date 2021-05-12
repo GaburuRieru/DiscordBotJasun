@@ -4,7 +4,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace CuteNoisesBot
+namespace BotLibrary
 {
     public static class TokenHandler
     {
@@ -40,7 +40,6 @@ namespace CuteNoisesBot
                 Regex reg = new Regex(Pattern);
                 Match match = reg.Match(readstring);
                 return match.Value.Trim('"');
-                //eturn match.Value;
             }
             
         }
