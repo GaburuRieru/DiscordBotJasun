@@ -52,7 +52,10 @@ namespace CuteNoisesBot
 
             foreach (var element in elements)
                 if (string.Equals(element.Command, command))
+                {
+                    if (Globals.SFWMode && !element.SFW) return "NSFW";
                     return element.Path;
+                }
 
             return string.Empty;
         }
@@ -84,5 +87,6 @@ namespace CuteNoisesBot
     {
         public string Command { get; set; }
         public string Path { get; set; }
+        public bool SFW { get; set; }
     }
 }

@@ -50,7 +50,7 @@ namespace CuteNoisesBot
 
             _client.Log += Log;
             _client.Ready += ClientReady;
-            _client.UserVoiceStateUpdated += VoiceJoinCuteNoiseAnnounce;
+     
 
             var token = await TokenHandler.GetTokenAsync();
 
@@ -64,7 +64,7 @@ namespace CuteNoisesBot
 
         private Task ClientReady()
         {
-            _client.SetGameAsync("!noise", null, ActivityType.Listening);
+            _client.SetGameAsync(Globals.ActivityStatus(), null, ActivityType.Listening);
             
             //await Task.Delay(2500);
             Console.WriteLine("Client is listening to commands");
@@ -72,57 +72,57 @@ namespace CuteNoisesBot
             return Task.CompletedTask;
         }
 
-        private Task VoiceJoinCuteNoiseAnnounce(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)
-        {
-            // Task.Run(async () =>
-            // {
-            //     Console.WriteLine("A user has joined, left or switched voice channel");
-            //
-            //     Console.WriteLine("Calling the sub-Module command responsible for this");
-            //
-            //     var noise = _services.GetService<NoiseModule>();
-            //     await noise.CuteNoise(user);
-            // });
+        // private Task VoiceJoinCuteNoiseAnnounce(SocketUser user, SocketVoiceState state1, SocketVoiceState state2)
+        // {
+        //     // Task.Run(async () =>
+        //     // {
+        //     //     Console.WriteLine("A user has joined, left or switched voice channel");
+        //     //
+        //     //     Console.WriteLine("Calling the sub-Module command responsible for this");
+        //     //
+        //     //     var noise = _services.GetService<NoiseModule>();
+        //     //     await noise.CuteNoise(user);
+        //     // });
+        //
+        //     if (state1.VoiceChannel == null)
+        //     {
+        //         Console.WriteLine($"State1 is null");
+        //     }
+        //     else
+        //     {
+        //         Console.WriteLine($"{state1.VoiceChannel.Name}");
+        //     }
+        //
+        //     if (state2.VoiceChannel == null)
+        //     {
+        //         Console.WriteLine($"State2 is null");
+        //     }
+        //     else
+        //     {
+        //         Console.WriteLine($"{state2.VoiceChannel.Name}");
+        //     }
+        //     
+        //
+        //     return Task.CompletedTask;
+        //     
+        //     //If the client that joined is a bot (including self), ignore this event
+        //     if (user.IsBot) return Task.CompletedTask;
+        //     
+        //     Console.WriteLine("A user has joined, left or switched voice channel");
+        //
+        //     Console.WriteLine("Calling the sub-Module command responsible for this");
+        //
+        //     //DoCuteNoise(user);
+        //
+        //     return Task.CompletedTask;
+        //
+        // }
 
-            if (state1.VoiceChannel == null)
-            {
-                Console.WriteLine($"State1 is null");
-            }
-            else
-            {
-                Console.WriteLine($"{state1.VoiceChannel.Name}");
-            }
-
-            if (state2.VoiceChannel == null)
-            {
-                Console.WriteLine($"State2 is null");
-            }
-            else
-            {
-                Console.WriteLine($"{state2.VoiceChannel.Name}");
-            }
-            
-
-            return Task.CompletedTask;
-            
-            //If the client that joined is a bot (including self), ignore this event
-            if (user.IsBot) return Task.CompletedTask;
-            
-            Console.WriteLine("A user has joined, left or switched voice channel");
-
-            Console.WriteLine("Calling the sub-Module command responsible for this");
-
-            //DoCuteNoise(user);
-
-            return Task.CompletedTask;
-
-        }
-
-        private Task DoCuteNoise(SocketUser user)
-        {
-            _services.GetService<NoiseModule>().CuteNoise(user, _client);
-            return Task.CompletedTask;
-        }
+        // private Task DoCuteNoise(SocketUser user)
+        // {
+        //     _services.GetService<NoiseModule>().CuteNoise(user, _client);
+        //     return Task.CompletedTask;
+        // }
 
         #region Unused Old testing code
 
@@ -195,7 +195,7 @@ namespace CuteNoisesBot
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton<CommandHandler>()
             .AddSingleton<CommandService>()
-            .AddSingleton<TestModule>()
+            //.AddSingleton<TestModule>()
             .AddSingleton<VoiceChannelSimpleModule>()
             .AddSingleton<NoiseModule>()
             .BuildServiceProvider();

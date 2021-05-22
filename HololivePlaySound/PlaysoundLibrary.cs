@@ -79,6 +79,11 @@ namespace HololivePlaySound
 
             return stringCommand.ToString();
         }
+
+        public static async Task ReloadDatabase()
+        {
+            
+        }
     }
 
     internal class HoloJson
