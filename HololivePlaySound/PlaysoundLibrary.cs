@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic;
 
 namespace HololivePlaySound
 {
@@ -14,8 +10,24 @@ namespace HololivePlaySound
         private const string NoiseBank = "Playsounds.json";
         private const string PlaysoundFolder = "Playsound";
 
-        private static Dictionary<string, string> _playsoundPaths = new Dictionary<string, string>();
-        
+        // private static Dictionary<string, string> _noises = new Dictionary<string, string>()
+        // {
+        //     {"horayo", "horayo.mp3"},
+        //     {"iamcrazy", "I am crazy.mp3"},
+        //     {"kokodayokrooz", "kokodayo.ogg"},
+        //     {"kokodayokorone", "kokodayo_korone.mp3"},
+        //     {"pekopeko", "PEKOPEKOPEKOPEKO.mp3"},
+        //     {"yubi", "yubi.ogg"},
+        // };
+
+        // private static Dictionary<string, string> _noises = new Dictionary<string, string>();
+
+
+        // public string GetRandomNoisePath()
+        // {
+        //     var keys = _noises.Keys;
+        //     var element = keys.ElementAt()    
+        // }
 
         public static async Task<string> GetPlaysound(string noiseCommand)
         {
@@ -28,32 +40,23 @@ namespace HololivePlaySound
             //     return Path.Combine("Noises", noisePathOutput);
             // }
 
-            //var result = await GetPlaysoundPathFromNoisebankAsync(noiseCommand);
-            var result = await GetPlaysoundPathFromMemoryAsync(noiseCommand);
+            var result = await GetPlaysoundPathFromNoisebankAsync(noiseCommand);
 
             if (result == string.Empty) return string.Empty;
 
             return Path.Combine(PlaysoundFolder, result);
         }
 
-        private static async Task<string> GetPlaysoundPathFromMemoryAsync(string command)
+        private static async Task<string> GetPlaysoundPathFromNoisebankAsync(string command)
         {
-            if (_playsoundPaths.TryGetValue(command, out var path)) return path;
-            Console.WriteLine($"Invalid Playsound - {command}");
+            var elements = await ReadFromJson();
+
+            foreach (var element in elements)
+                if (string.Equals(element.Command, command))
+                    return element.Path;
+
             return string.Empty;
-
         }
-
-        // private static async Task<string> GetPlaysoundPathFromNoisebankAsync(string command)
-        // {
-        //     var elements = await ReadFromJson();
-        //
-        //     foreach (var element in elements)
-        //         if (string.Equals(element.Command, command))
-        //             return element.Path;
-        //
-        //     return string.Empty;
-        // }
 
         private static async Task<HoloJson[]> ReadFromJson()
         {
@@ -61,48 +64,20 @@ namespace HololivePlaySound
             var elements = await JsonSerializer.DeserializeAsync<HoloJson[]>(stream);
             return elements;
         }
-        
+
         public static async Task<string> GetAvailableCommands()
         {
-            if (_playsoundPaths == null || _playsoundPaths.Count == 0) return "Playsounds unavailable at the moment.";
-            
-            // var elements = await ReadFromJson();
-            // var stringCommand = new StringBuilder("Playsounds available: ");
-            //
-            // for (var i = 0; i < elements.Length; i++)
-            // {
-            //     stringCommand.Append(elements[i].Command);
-            //
-            //     if (i < elements.Length) stringCommand.Append(", ");
-            // }
-
-            
-            var separator = ", ";
+            var elements = await ReadFromJson();
             var stringCommand = new StringBuilder("Playsounds available: ");
 
-            for (int i = 0; i < _playsoundPaths.Count; i++)
+            for (var i = 0; i < elements.Length; i++)
             {
-                stringCommand.Append(_playsoundPaths.ElementAt(i).Key);
-                if (i < _playsoundPaths.Count) stringCommand.Append(separator);
+                stringCommand.Append(elements[i].Command);
+
+                if (i < elements.Length) stringCommand.Append(", ");
             }
 
             return stringCommand.ToString();
-        }
-        
-
-        public static async Task ReloadDatabase()
-        {
-            _playsoundPaths.Clear();
-
-            var elements = await ReadFromJson();
-            foreach (var element in elements)
-            {
-                if (!_playsoundPaths.TryAdd(element.Command, element.Path))
-                {
-                    Console.WriteLine($"Failed to add Command - {element.Command} for Path {element.Path}");
-                }
-            }
-
         }
     }
 

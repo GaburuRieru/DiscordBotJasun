@@ -16,7 +16,9 @@ namespace CuteNoisesBot
         //WARUNG BAKSO VOICE CHANNEL ID
         private const ulong _warungbakso = 719170777345294357;
         private const ulong _botOwnerId = 120843233864581120;
-        
+
+        private bool _commandBeingExecuted = false;
+
         //private readonly NoiseService _noise;
 
         //private readonly ConcurrentDictionary<ulong, IAudioClient> _connectedChannels =
@@ -104,14 +106,14 @@ namespace CuteNoisesBot
             // }
 
             await channel.DisconnectAsync();
+            
             //await _connectedVoiceChannel.DisconnectAsync();
             //_connectedVoiceChannel = null;
-           // _audioClient = null;
+            // _audioClient = null;
         }
 
         private async Task AnnounceNoise(IAudioClient audioClient, string path)
         {
-
             // if (_connectedChannels.TryGetValue(Context.Guild.Id, out IAudioClient audioClient))
             //if (_audioClient != null)
             {
@@ -154,45 +156,45 @@ namespace CuteNoisesBot
             }
         }
 
-        public async Task CuteNoise(SocketUser user, DiscordSocketClient client)
-        {
-            // Console.WriteLine("A user has joined, left or switched voice channel");
-
-            //if the client that joined is self or bot, ignore this event
-            //if (user.IsBot) return;
-
-            //if bot is currently in a channel, ignore this event
-            var isBotInChannel = ((client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null;
-            if (isBotInChannel)
-            {
-                Console.WriteLine("Bot is currently in a channel. CuteNoiseAnnounce Event ignored.");
-                return;
-            }
-
-            //If user is not in a channel (aka left the channel) we ignore this event
-            var channel = (user as IGuildUser)?.VoiceChannel;
-            if (channel == null) return;
-
-            Console.WriteLine($"{user.Username} joined a voice channel - {channel.Name}");
-
-            //if the channel already has at least one user prior to current user joining, ignore this event
-            // if ((channel as SocketVoiceChannel)?.Users.Count > 2)
-            // {
-            //     Console.WriteLine($"{channel.Name} currently has more than 1 user, ignore this event call.");
-            //     return;
-            // }
-
-            //Console.WriteLine($"Voice channel currently only has that user");
-            Console.WriteLine($"Bot will now attempt to join the channel and play cute announcement");
-
-            // await Task.Run(async () =>
-            // {
-            IAudioClient voiceClient = await JoinVoice(channel);
-            // await Task.Delay(1000);
-            await AnnounceNoise(voiceClient, string.Empty);
-            await LeaveVoice(channel);
-            // });
-        }
+        // public async Task CuteNoise(SocketUser user, DiscordSocketClient client)
+        // {
+        //     // Console.WriteLine("A user has joined, left or switched voice channel");
+        //
+        //     //if the client that joined is self or bot, ignore this event
+        //     //if (user.IsBot) return;
+        //
+        //     //if bot is currently in a channel, ignore this event
+        //     var isBotInChannel = ((client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null;
+        //     if (isBotInChannel)
+        //     {
+        //         Console.WriteLine("Bot is currently in a channel. CuteNoiseAnnounce Event ignored.");
+        //         return;
+        //     }
+        //
+        //     //If user is not in a channel (aka left the channel) we ignore this event
+        //     var channel = (user as IGuildUser)?.VoiceChannel;
+        //     if (channel == null) return;
+        //
+        //     Console.WriteLine($"{user.Username} joined a voice channel - {channel.Name}");
+        //
+        //     //if the channel already has at least one user prior to current user joining, ignore this event
+        //     // if ((channel as SocketVoiceChannel)?.Users.Count > 2)
+        //     // {
+        //     //     Console.WriteLine($"{channel.Name} currently has more than 1 user, ignore this event call.");
+        //     //     return;
+        //     // }
+        //
+        //     //Console.WriteLine($"Voice channel currently only has that user");
+        //     Console.WriteLine($"Bot will now attempt to join the channel and play cute announcement");
+        //
+        //     // await Task.Run(async () =>
+        //     // {
+        //     IAudioClient voiceClient = await JoinVoice(channel);
+        //     // await Task.Delay(1000);
+        //     await AnnounceNoise(voiceClient, string.Empty);
+        //     await LeaveVoice(channel);
+        //     // });
+        // }
 
 
         // private async Task SendNoise(string path)
@@ -214,26 +216,34 @@ namespace CuteNoisesBot
         //     await AnnounceNoise(voiceClient, path);
         //     await LeaveVoice(userVoice);
         // }
-        
+
         [Command("noise", RunMode = RunMode.Async)]
         public async Task PlayNoise(string noise)
         {
-
-            var ownerExecuted = Context.User.Id == _botOwnerId;
-            var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
-            var botVoice = Context.Guild.CurrentUser.VoiceChannel;
+            if (_commandBeingExecuted) return;
+            _commandBeingExecuted = true;
             
+            await ExecutePlaysound(Context, noise);
+
+            _commandBeingExecuted = false;
+        }
+
+        private async Task ExecutePlaysound(SocketCommandContext context, string noise)
+        {
+            var ownerExecuted = context.User.Id == _botOwnerId;
+            var userVoice = (context.User as IGuildUser)?.VoiceChannel;
+            var botVoice = context.Guild.CurrentUser.VoiceChannel;
+
             if (userVoice == null && ownerExecuted)
             {
-                var bakso = Context.Guild.GetVoiceChannel(_warungbakso);
+                var bakso = context.Guild.GetVoiceChannel(_warungbakso);
                 if (bakso == null) return;
-                var userCount = bakso.Users.Count; 
+                var userCount = bakso.Users.Count;
                 //Console.WriteLine($"Users in voice : {userCount}");
 
                 if (userCount == 0) return;
 
                 userVoice = bakso;
-
             }
 
 
@@ -242,23 +252,28 @@ namespace CuteNoisesBot
                 //Console.WriteLine($"Bot is already in a voice channel {botVoice}");
                 return;
             }
-            
-            //if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
-            //Console.WriteLine("Attempting to start");
-            
-            
+
+
             string path = await NoiseLibrary.GetNoise(noise);
 
             //Couldnt find any path to the noises, ignore this command
             if (path == string.Empty) return;
-            
+
+            //Stop execution for SFW mode if a NSFW playsound was request and send a message
+            if (path.Contains("NSFW"))
+            {
+                await context.Channel.SendMessageAsync($"NSFW Playsound was requested.");
+                return;
+            }
+
             IAudioClient voiceClient = await JoinVoice(userVoice);
 
             // await Task.Delay(2000);
             await AnnounceNoise(voiceClient, path);
             await LeaveVoice(userVoice);
+            return;
         }
-        
+
         [Command("noise", RunMode = RunMode.Async)]
         public async Task PlayNoiseInvalid(params string[] args)
         {
@@ -267,11 +282,20 @@ namespace CuteNoisesBot
                 await Context.User.SendMessageAsync(await NoiseLibrary.GetAvailableCommands());
                 return;
             }
-            
+
             if (args.Length >= 2)
             {
                 return;
             }
+        }
+
+        [Command("noisesfw")]
+        [RequireOwner]
+        public async Task ToggleSFWAsync()
+        {
+            Globals.ToggleSFW();
+            await Context.Channel.SendMessageAsync(Globals.SFWMessage());
+            await Context.Client.SetGameAsync(Globals.ActivityStatus(), null, ActivityType.Listening);
         }
     }
 }
