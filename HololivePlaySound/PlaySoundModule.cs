@@ -14,7 +14,8 @@ namespace HololivePlaySound
         private const string CommandPhrase = "hololive";
         private const string ReloadCommand = "reload";
 
-        private Dictionary<ulong, ulong> _activeVoiceGuilds = new Dictionary<ulong, ulong>();
+        //private Dictionary<ulong, ulong> _activeVoiceGuilds = new Dictionary<ulong, ulong>();
+        private List<ulong> _voiceActiveGuilds = new List<ulong>();
         private bool _databaseReloading = false;
 
         private async Task<IAudioClient> JoinVoice(IVoiceChannel channel)
@@ -77,11 +78,20 @@ namespace HololivePlaySound
             //Bot is reloading noise database, ignore all commands
             if (_databaseReloading) return;
 
+            //Tells bot to reload database
             if (noise == ReloadCommand)
             {
                 ReloadDatabase();
                 return;
             }
+
+            var guildID = Context.Guild.Id;
+            
+            //Check if this guild is already executing bot commands
+            if (_voiceActiveGuilds.Contains(guildID)) return;
+            
+            //Add guild into execution list so no conflicting commands
+            _voiceActiveGuilds.Add(guildID);
             
             var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
             if (userVoice == null) return;
