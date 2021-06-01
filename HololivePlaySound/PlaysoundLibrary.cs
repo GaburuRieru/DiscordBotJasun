@@ -23,7 +23,7 @@ namespace HololivePlaySound
         //     var element = keys.ElementAt()    
         // }
 
-        public static async Task<string> GetPlaysound(string noiseCommand)
+        public static async Task<string> GetPlaysoundAsync(string noiseCommand)
         {
             if (string.IsNullOrWhiteSpace(noiseCommand)) return "";
 
@@ -61,14 +61,14 @@ namespace HololivePlaySound
         //     return string.Empty;
         // }
 
-        private static async Task<HoloJson[]> ReadFromJson()
+        private static async Task<HoloJson[]> ReadFromJsonAsync()
         {
             await using var stream = File.OpenRead(NoiseBank);
             var elements = await JsonSerializer.DeserializeAsync<HoloJson[]>(stream);
             return elements;
         }
         
-        public static async Task<string> GetAvailableCommands()
+        public static async Task<string> GetAvailableCommandsAsync()
         {
             if (_playsoundPaths == null || _playsoundPaths.Count == 0) return "Playsounds unavailable at the moment.";
             
@@ -96,11 +96,11 @@ namespace HololivePlaySound
         }
         
 
-        public static async Task ReloadDatabase()
+        public static async Task ReloadDatabaseAsync()
         {
             _playsoundPaths.Clear();
 
-            var elements = await ReadFromJson();
+            var elements = await ReadFromJsonAsync();
             foreach (var element in elements)
             {
                 if (!_playsoundPaths.TryAdd(element.Command, element.Path))

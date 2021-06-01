@@ -4,7 +4,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace BotLibrary
+namespace AudioLibrary
 {
     public static class TokenHandler
     {
