@@ -1,17 +1,25 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Discord;
-using Discord.Audio;
-using Discord.Commands;
-using Discord.WebSocket;
+using DSharpPlus;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
+using DSharpPlus.Lavalink;
+using DSharpPlus.Lavalink.EventArgs;
+using dnet = Discord;
+using dnetAudio = Discord.Audio;
+using dnetCommand = Discord.Commands;
+using dnetSocket = Discord.WebSocket;
 
 namespace CuteNoisesBot
 {
-    public class NoiseModule : ModuleBase<SocketCommandContext>
+    public class NoiseModuleOld : dnetCommand.ModuleBase<dnetCommand.SocketCommandContext>
     {
         //WARUNG BAKSO VOICE CHANNEL ID
         private const ulong _warungbakso = 719170777345294357;
@@ -19,31 +27,16 @@ namespace CuteNoisesBot
 
         private bool _commandBeingExecuted = false;
 
-        //private readonly NoiseService _noise;
 
-        //private readonly ConcurrentDictionary<ulong, IAudioClient> _connectedChannels =
-        //new ConcurrentDictionary<ulong, IAudioClient>();
 
-        // private IVoiceChannel _connectedVoiceChannel;
-        // private IAudioClient _audioClient;
-
-        //private DiscordSocketClient _client;
-        //private readonly NoiseService _service;
-
-        // public NoiseModule(DiscordSocketClient client)
-        // {
-        //     _client = client;
-        //     Console.WriteLine(_client);
-        // }
-
-        [Command("join", RunMode = RunMode.Async)]
-        [RequireOwner]
+        //[Command("join", RunMode = RunMode.Async)]
+        [dnetCommand.RequireOwner]
         public async Task ManualJoin()
         {
             //await JoinVoice((Context.User as IGuildUser)?.VoiceChannel);
 
             //Get audio channel
-            var voiceChannel = (Context.User as IGuildUser)?.VoiceChannel;
+            var voiceChannel = (Context.User as dnet.IGuildUser)?.VoiceChannel;
             if (voiceChannel == null)
             {
                 await Context.Channel.SendMessageAsync(
@@ -60,71 +53,34 @@ namespace CuteNoisesBot
             // }
         }
 
-        [Command("leave")]
-        [RequireOwner]
+        //[Command("leave")]
+        [dnetCommand.RequireOwner]
         public async Task ManualLeave()
         {
-            await LeaveVoice((Context.User as IGuildUser)?.VoiceChannel);
+            await LeaveVoice((Context.User as dnet.IGuildUser)?.VoiceChannel);
         }
 
-        private async Task<IAudioClient> JoinVoice(IVoiceChannel channel)
+        private async Task<dnetAudio.IAudioClient> JoinVoice(dnet.IVoiceChannel channel)
         {
             //_connectedVoiceChannel = channel;
             //_audioClient = await channel.ConnectAsync(true);
             return await channel.ConnectAsync(true);
         }
 
-        private async Task LeaveVoice(IVoiceChannel channel)
+        private async Task LeaveVoice(dnet.IVoiceChannel channel)
         {
-            // //Get the voice channel the command user is in
-            // var userVoiceChannel = (Context.User as IGuildUser)?.VoiceChannel;
-            //
-            // //if user is not in a voice channel we exit
-            // if (userVoiceChannel == null)
-            // {
-            //     Console.WriteLine($"{Context.User.Username} is not in a voice channel. Code Exit");
-            //     return;
-            // }
-            //
-            // //Get the voice channel the bot is in
-            // var botVoiceChannel = (await Context.Channel.GetUserAsync(Context.Client.CurrentUser.Id) as IGuildUser)
-            //     ?.VoiceChannel;
-            //
-            // if (botVoiceChannel == null)
-            // {
-            //     Console.WriteLine("Bot is not in a voice channel. Code Exit.");
-            //     return;
-            // }
-            //
-            // //Check if command user and bot are in the same channel
-            // //if bot is not in a voice channel we exit
-            // //And execute leave voice channel if true
-            // if (userVoiceChannel.Id == botVoiceChannel.Id)
-            // {
-            //     await userVoiceChannel.DisconnectAsync();
-            //     Console.WriteLine($"Bot disconnected from {botVoiceChannel}");
-            // }
-
             await channel.DisconnectAsync();
-            
-            //await _connectedVoiceChannel.DisconnectAsync();
-            //_connectedVoiceChannel = null;
-            // _audioClient = null;
         }
 
-        private async Task AnnounceNoise(IAudioClient audioClient, string path)
+        private async Task AnnounceNoise(dnetAudio.IAudioClient audioClient, string path)
         {
-            // if (_connectedChannels.TryGetValue(Context.Guild.Id, out IAudioClient audioClient))
-            //if (_audioClient != null)
-            {
-                // await Task.Run(async () =>
-                //{
+            
                 Console.WriteLine($"Attempting to decode audio file {path}.");
                 //var output = AudioStream.CreateStream(path).StandardOutput.BaseStream;
                 using (var ffmpeg = AudioStream.CreateStream(path))
                 await using (var output = ffmpeg.StandardOutput.BaseStream)
 
-                await using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
+                await using (var discord = audioClient.CreatePCMStream(dnetAudio.AudioApplication.Mixed))
                 {
                     await output.CopyToAsync(discord);
                     await discord.FlushAsync().ConfigureAwait(false);
@@ -137,87 +93,16 @@ namespace CuteNoisesBot
                     //     await discord.FlushAsync();
                     // }
                 }
-
-                //Console.WriteLine($"Output Stream created: {output}");
-                //var stream = _audioClient.CreateDirectPCMStream(AudioApplication.Mixed);
-                //Console.WriteLine($"PCM stream created {stream}.");
-                //await output.CopyToAsync(stream);
+                
                 Console.WriteLine($"Output stream copied.");
-                //await stream.FlushAsync().ConfigureAwait(false);
                 Console.WriteLine("Flushing stream.");
 
-                // });
-                //}
+            
 
-                // else
-                // {
-                //     Console.WriteLine($"No audio client found.");
-                // }
-            }
         }
+        
 
-        // public async Task CuteNoise(SocketUser user, DiscordSocketClient client)
-        // {
-        //     // Console.WriteLine("A user has joined, left or switched voice channel");
-        //
-        //     //if the client that joined is self or bot, ignore this event
-        //     //if (user.IsBot) return;
-        //
-        //     //if bot is currently in a channel, ignore this event
-        //     var isBotInChannel = ((client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null;
-        //     if (isBotInChannel)
-        //     {
-        //         Console.WriteLine("Bot is currently in a channel. CuteNoiseAnnounce Event ignored.");
-        //         return;
-        //     }
-        //
-        //     //If user is not in a channel (aka left the channel) we ignore this event
-        //     var channel = (user as IGuildUser)?.VoiceChannel;
-        //     if (channel == null) return;
-        //
-        //     Console.WriteLine($"{user.Username} joined a voice channel - {channel.Name}");
-        //
-        //     //if the channel already has at least one user prior to current user joining, ignore this event
-        //     // if ((channel as SocketVoiceChannel)?.Users.Count > 2)
-        //     // {
-        //     //     Console.WriteLine($"{channel.Name} currently has more than 1 user, ignore this event call.");
-        //     //     return;
-        //     // }
-        //
-        //     //Console.WriteLine($"Voice channel currently only has that user");
-        //     Console.WriteLine($"Bot will now attempt to join the channel and play cute announcement");
-        //
-        //     // await Task.Run(async () =>
-        //     // {
-        //     IAudioClient voiceClient = await JoinVoice(channel);
-        //     // await Task.Delay(1000);
-        //     await AnnounceNoise(voiceClient, string.Empty);
-        //     await LeaveVoice(channel);
-        //     // });
-        // }
-
-
-        // private async Task SendNoise(string path)
-        // {
-        // }
-
-        // [Command("cute", RunMode = RunMode.Async)]
-        // public async Task PlayKlee()
-        // {
-        //     var userVoice = (Context.User as IGuildUser)?.VoiceChannel;
-        //     if (userVoice == null) return;
-        //     if (((Context.Client.CurrentUser as SocketUser) as IGuildUser)?.VoiceChannel != null) return;
-        //     
-        //     string path = "Klee_bombbomb.mp3";
-        //
-        //     IAudioClient voiceClient = await JoinVoice(userVoice);
-        //
-        //     // await Task.Delay(2000);
-        //     await AnnounceNoise(voiceClient, path);
-        //     await LeaveVoice(userVoice);
-        // }
-
-        [Command("noise", RunMode = RunMode.Async)]
+        //[Command("noise", RunMode = RunMode.Async)]
         public async Task PlayNoise(string noise)
         {
             if (_commandBeingExecuted) return;
@@ -228,10 +113,10 @@ namespace CuteNoisesBot
             _commandBeingExecuted = false;
         }
 
-        private async Task ExecutePlaysound(SocketCommandContext context, string noise)
+        private async Task ExecutePlaysound(dnetCommand.SocketCommandContext context, string noise)
         {
             var ownerExecuted = context.User.Id == _botOwnerId;
-            var userVoice = (context.User as IGuildUser)?.VoiceChannel;
+            var userVoice = (context.User as dnet.IGuildUser)?.VoiceChannel;
             var botVoice = context.Guild.CurrentUser.VoiceChannel;
 
             if (userVoice == null && ownerExecuted)
@@ -239,7 +124,6 @@ namespace CuteNoisesBot
                 var bakso = context.Guild.GetVoiceChannel(_warungbakso);
                 if (bakso == null) return;
                 var userCount = bakso.Users.Count;
-                //Console.WriteLine($"Users in voice : {userCount}");
 
                 if (userCount == 0) return;
 
@@ -265,8 +149,8 @@ namespace CuteNoisesBot
                 await context.Channel.SendMessageAsync($"NSFW Playsound was requested.");
                 return;
             }
-
-            IAudioClient voiceClient = await JoinVoice(userVoice);
+            
+            dnetAudio.IAudioClient voiceClient = await JoinVoice(userVoice);
 
             // await Task.Delay(2000);
             await AnnounceNoise(voiceClient, path);
@@ -274,12 +158,12 @@ namespace CuteNoisesBot
             return;
         }
 
-        [Command("noise", RunMode = RunMode.Async)]
+        //[Command("noise", RunMode = RunMode.Async)]
         public async Task PlayNoiseInvalid(params string[] args)
         {
             if (args.Length == 0)
             {
-                await Context.User.SendMessageAsync(await NoiseLibrary.GetAvailableCommands());
+                //await Context.User.SendMessageAsync(await NoiseLibrary.GetAvailableCommands());
                 return;
             }
 
@@ -289,13 +173,163 @@ namespace CuteNoisesBot
             }
         }
 
-        [Command("noisesfw")]
-        [RequireOwner]
+        //[Command("noisesfw")]
+        [RequirePermissions(Permissions.Administrator)]
         public async Task ToggleSFWAsync()
         {
             Globals.ToggleSFW();
             await Context.Channel.SendMessageAsync(Globals.SFWMessage());
-            await Context.Client.SetGameAsync(Globals.ActivityStatus(), null, ActivityType.Listening);
+            //await Context.Client.SetGameAsync(Globals.ActivityStatus(), null, ActivityType.Listening);
         }
+    }
+
+    public class NoiseModule : BaseCommandModule
+    {
+        [Command("e")]
+        public async Task PlayNoise(CommandContext ctx, string sound)
+        {
+            if (sound == "korodisco")
+            {
+                await PlayKoroDisco(ctx);
+                return;
+            }
+            
+            //Check if command invoker is in a voice channel
+            var channel = (ctx.Member.VoiceState?.Channel == null)
+                ? null
+                : ctx.Member.VoiceState
+                    .Channel;
+
+            if (channel == null)
+            {
+                return;
+            }
+
+            var soundPath = await NoiseLibrary.GetNoise(sound);
+            if (string.IsNullOrEmpty(soundPath))
+            {
+                Console.WriteLine($"Playsound -- {sound} not found");
+                return;
+            }
+
+            //get lavalink client
+            var lava = ctx.Client.GetLavalink();
+            if (lava == null)
+            {
+                await ctx.RespondAsync("Lavalink not initalized.");
+                return;
+            }
+            
+            var node = lava.GetIdealNodeConnection();
+            if (node == null)
+            {
+                await ctx.RespondAsync("No node found.");
+                return;
+            }
+
+
+            //load track to play
+            var result = await node.Rest.GetTracksAsync(new FileInfo(soundPath));
+            if (result.LoadResultType == LavalinkLoadResultType.LoadFailed
+                || result.LoadResultType == LavalinkLoadResultType.NoMatches)
+            {
+                await ctx.RespondAsync($"Playsound failed. Reason: {result.Exception.Message}.");
+                return;
+            }
+
+            var track = result.Tracks.First();
+
+            //connect to channel
+            var conn = await node.ConnectAsync(channel);
+            
+            conn.PlaybackFinished += DisconnectAfterPlayback;
+
+
+            //lavalink play
+            //var track = result.Tracks.First();
+            await conn.PlayAsync(track);
+        }
+
+        private async Task DisconnectAfterPlayback(LavalinkGuildConnection connection, TrackFinishEventArgs args)
+        {
+            connection.PlaybackFinished -= DisconnectAfterPlayback;
+            await connection.DisconnectAsync();
+        }
+        
+        [Command("e")]
+        public async Task PlayNoiseExtra(CommandContext ctx, params string[] t)
+        {
+            if (t.Length == 0 || (t.Length == 1 && string.IsNullOrWhiteSpace(t.First())))
+            {
+                await ctx.Member.SendMessageAsync(await NoiseLibrary.GetAvailableCommands());
+            }
+        }
+        
+        private async Task PlayKoroDisco(CommandContext ctx)
+        {
+            //Check if command invoker is in a voice channel
+            var channel = (ctx.Member.VoiceState?.Channel == null)
+                ? null
+                : ctx.Member.VoiceState
+                    .Channel;
+
+            if (channel == null)
+            {
+                return;
+            }
+            
+            var lavalink = ctx.Client.GetLavalink();
+            var node = lavalink.GetIdealNodeConnection();
+            
+            
+            //Search for korodisco
+            var result = await node.Rest.GetTracksAsync(new Uri("https://youtu.be/mRTap9LP1jo"));
+            if (result.LoadResultType == LavalinkLoadResultType.NoMatches)
+            {
+                Console.WriteLine($"No results found for Koro Disco on Youtube.");
+                Console.WriteLine($"Reasons: {result.Exception.Message}");
+                return;
+            }
+
+            var track = result.Tracks.First();
+            
+            var conn = await node.ConnectAsync(channel);
+
+            conn.PlaybackFinished += async (lgc, args) =>
+            {
+                await lgc.DisconnectAsync();
+            };
+            
+            await conn.PlayAsync(track);
+            
+        }
+
+        [Command("eyeet")]
+        [RequireUserPermissions(Permissions.Administrator)]
+       // [RequirePermissions(Permissions.Administrator)]
+       
+        public async Task StopPlaying(CommandContext ctx)
+        {
+            Console.WriteLine($"Yeeting the bot.");
+            
+            var lavalink = ctx.Client.GetLavalink();
+            var node = lavalink.GetIdealNodeConnection();
+            
+            var conn = lavalink.GetGuildConnection(ctx.Guild);
+            if (conn == null) //No voice connections in guild
+            {
+                Console.WriteLine($"Bot is not connected to a voice channel in {ctx.Guild.Name}");
+                return;
+            }
+
+            if (conn.CurrentState.CurrentTrack == null) return;
+
+            await conn.StopAsync();
+
+            await Task.Delay(500);
+
+            if (conn.IsConnected) await conn.DisconnectAsync();
+        }
+        
     }
 }

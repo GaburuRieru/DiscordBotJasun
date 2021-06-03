@@ -8,6 +8,7 @@ using Discord;
 using Discord.Audio;
 //using Discord.Commands;
 using Discord.WebSocket;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -134,21 +135,23 @@ namespace HololivePlaySound
         //leave voice channel
         //Play sound
 
-        [Command("holojoin")]
+        [Command("join")]
         [RequireOwner]
         public async Task JoinVoiceWithUser(CommandContext ctx)
         {
         }
 
-        [Command("hololeave")]
+        [Command("leave")]
         [RequireOwner]
         public async Task LeaveVoiceByUser(CommandContext ctx)
         {
         }
 
-        [Command("hololive")]
+        [Command("live")]
         public async Task Playsound(CommandContext ctx, string playsound)
         {
+            
+            
             //Check if command invoker is in a voice channel
             var channel = (ctx.Member.VoiceState?.Channel == null)
                 ? null
@@ -194,11 +197,13 @@ namespace HololivePlaySound
                 return;
             }
 
+            var track = result.Tracks.First();
+
             //connect to channel
             var conn = await node.ConnectAsync(channel);
+            
 
             //lavalink play
-            var track = result.Tracks.First();
             await conn.PlayAsync(result.Tracks.First());
 
             // Console.WriteLine($"Playing playsound: {playsound}");
@@ -208,13 +213,18 @@ namespace HololivePlaySound
             //                   $"Title: {track.Title} \r\n" +
             //                   $"Length: {track.Length}");
 
-            conn.PlaybackFinished += async (c, args) => { await c.DisconnectAsync(); };
-
+   
+            conn.PlaybackFinished += async (c, args) =>
+            {
+               
+                await c.DisconnectAsync();
+            };
 
             // await LeaveVoiceChannelAsync(ctx);
         }
 
-        [Command("holotest")]
+        [Command("test")]
+        [RequireOwner]
         public async Task Playsound(CommandContext ctx)
         {
             //Check if command invoker is in a voice channel
@@ -289,7 +299,7 @@ namespace HololivePlaySound
             //await LeaveVoiceChannelAsync(ctx);
         }
 
-        [Command("holostop")]
+        [Command("stop")]
         [RequireOwner]
         public async Task StopTest(CommandContext ctx)
         {
@@ -354,11 +364,45 @@ namespace HololivePlaySound
             return await PlaysoundLibrary.GetPlaysoundAsync(sound);
         }
 
-        [Command("hololive")]
+        [Command("live")]
         public async Task SoundCommandsAsync(CommandContext ctx)
         {
             var commands = await PlaysoundLibrary.GetAvailableCommandsAsync();
             await ctx.Member.SendMessageAsync($"Available playsounds: {commands}");
+        }
+        
+        [Command("liveyeet")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        // [RequirePermissions(Permissions.Administrator)]
+       
+        public async Task StopPlaying(CommandContext ctx)
+        {
+            Console.WriteLine($"Yeeting the bot.");
+            
+            var lavalink = ctx.Client.GetLavalink();
+            var node = lavalink.GetIdealNodeConnection();
+            
+            var conn = lavalink.GetGuildConnection(ctx.Guild);
+            if (conn == null) //No voice connections in guild
+            {
+                Console.WriteLine($"Bot is not connected to a voice channel in {ctx.Guild.Name}");
+                return;
+            }
+
+            if (conn.CurrentState.CurrentTrack == null) return;
+
+            await conn.StopAsync();
+
+            await Task.Delay(500);
+
+            if (conn.IsConnected) await conn.DisconnectAsync();
+        }
+
+        [Command("reload")]
+        [RequireOwner]
+        public async Task ReloadPlaysoundDatabase()
+        {
+            await PlaysoundLibrary.ReloadDatabaseAsync();
         }
     }
 }
