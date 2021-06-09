@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Discord.Net" Version="2.3.1" />
+      <PackageReference Include="DSharpPlus" Version="4.0.1" />
+      <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.1" />
+      <PackageReference Include="DSharpPlus.Lavalink" Version="4.0.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Example\AudioModule.cs" />
+      <None Include="Example\AudioModule.cs" />
+      <Compile Remove="Example\AudioService.cs" />
+      <None Include="Example\AudioService.cs" />
+      <Compile Remove="Modules.cs" />
+      <None Include="Modules.cs" />
+      <Compile Remove="TokenHandler.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Noises" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AudioLibrary\AudioLibrary.csproj" />
+    </ItemGroup>
+
+</Project>
