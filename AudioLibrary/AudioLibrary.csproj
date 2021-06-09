@@ -2,13 +2,20 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
-        <RootNamespace>BotLibrary</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Discord.Net.Core" Version="2.3.1" />
       <PackageReference Include="DSharpPlus" Version="4.0.1" />
+      <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.1" />
       <PackageReference Include="DSharpPlus.Lavalink" Version="4.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="RAWAudio.cs" />
+      <None Include="RAWAudio.cs" />
+      <None Update="config.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

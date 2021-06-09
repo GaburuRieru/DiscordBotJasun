@@ -14,6 +14,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Net;
 using Microsoft.Extensions.DependencyInjection;
+
 using Microsoft.Extensions.Logging;
 using TokenType = Discord.TokenType;
 
@@ -27,6 +28,7 @@ namespace CuteNoisesBot
             //Console.WriteLine("Hello World!");
             //new Program().MainAsync().GetAwaiter().GetResult();
             new Program().MainDsharpAsync().GetAwaiter().GetResult();
+
         }
 
         // private DiscordSocketClient _client;
@@ -119,8 +121,10 @@ namespace CuteNoisesBot
 
             var commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration()
             {
-                StringPrefixes = new[] {"!nois"},
-                Services = service
+                StringPrefixes = new[] {"!"},
+                Services = service,
+                IgnoreExtraArguments = true,
+                EnableMentionPrefix = false
             });
 
             commands.RegisterCommands<NoiseModule>();

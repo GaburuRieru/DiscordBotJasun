@@ -122,6 +122,7 @@ namespace HololivePlaySound
     // }
 
     public class HololiveModule : BaseCommandModule
+
     {
         [Command("test")]
         [RequireOwner]
@@ -135,34 +136,21 @@ namespace HololivePlaySound
         //leave voice channel
         //Play sound
 
-        [Command("join")]
-        [RequireOwner]
-        public async Task JoinVoiceWithUser(CommandContext ctx)
-        {
-        }
+        // [Command("join")]
+        // [RequireOwner]
+        // public async Task JoinVoiceWithUser(CommandContext ctx)
+        // {
+        // }
+        //
+        // [Command("leave")]
+        // [RequireOwner]
+        // public async Task LeaveVoiceByUser(CommandContext ctx)
+        // {
+        // }
 
-        [Command("leave")]
-        [RequireOwner]
-        public async Task LeaveVoiceByUser(CommandContext ctx)
-        {
-        }
-
-        [Command("live")]
+        [Command("hololive")]
         public async Task Playsound(CommandContext ctx, string playsound)
         {
-            
-            
-            //Check if command invoker is in a voice channel
-            var channel = (ctx.Member.VoiceState?.Channel == null)
-                ? null
-                : ctx.Member.VoiceState
-                    .Channel;
-
-            if (channel == null)
-            {
-                return;
-            }
-
             var soundPath = await GetPlaysoundPathAsync(playsound);
             if (string.IsNullOrEmpty(soundPath))
             {
@@ -170,60 +158,79 @@ namespace HololivePlaySound
                 return;
             }
 
-            //get lavalink client
-            var lava = ctx.Client.GetLavalink();
-            if (lava == null)
-            {
-                await ctx.RespondAsync("Lavalink not initalized.");
-                return;
-            }
+            await PlaysoundSystem.Play(ctx, soundPath);
 
-            //get node
-            //var node = await GetLavalinkNodeAsync(lava);
-            var node = lava.GetIdealNodeConnection();
-            if (node == null)
-            {
-                await ctx.RespondAsync("No node found.");
-                return;
-            }
+            // //Check if command invoker is in a voice channel
+            // var channel = (ctx.Member.VoiceState?.Channel == null)
+            //     ? null
+            //     : ctx.Member.VoiceState
+            //         .Channel;
+            //
+            // if (channel == null)
+            // {
+            //     return;
+            // }
+
+            // var soundPath = await GetPlaysoundPathAsync(playsound);
+            // if (string.IsNullOrEmpty(soundPath))
+            // {
+            //     Console.WriteLine($"Playsound -- {playsound} not found");
+            //     return;
+            // }
+
+            // //get lavalink client
+            // var lava = ctx.Client.GetLavalink();
+            // if (lava == null)
+            // {
+            //     await ctx.RespondAsync("Lavalink not initalized.");
+            //     return;
+            // }
+
+            // //get node
+            // //var node = await GetLavalinkNodeAsync(lava);
+            // var node = lava.GetIdealNodeConnection();
+            // if (node == null)
+            // {
+            //     await ctx.RespondAsync("No node found.");
+            //     return;
+            // }
 
 
-            //load track to play
-            var result = await node.Rest.GetTracksAsync(new FileInfo(soundPath));
-            if (result.LoadResultType == LavalinkLoadResultType.LoadFailed
-                || result.LoadResultType == LavalinkLoadResultType.NoMatches)
-            {
-                await ctx.RespondAsync($"Playsound failed. Reason: {result.Exception.Message}.");
-                return;
-            }
+            // //load track to play
+            // var result = await node.Rest.GetTracksAsync(new FileInfo(soundPath));
+            // if (result.LoadResultType == LavalinkLoadResultType.LoadFailed
+            //     || result.LoadResultType == LavalinkLoadResultType.NoMatches)
+            // {
+            //     await ctx.RespondAsync($"Playsound failed. Reason: {result.Exception.Message}.");
+            //     return;
+            // }
 
-            var track = result.Tracks.First();
-
-            //connect to channel
-            var conn = await node.ConnectAsync(channel);
-            
-
-            //lavalink play
-            await conn.PlayAsync(result.Tracks.First());
-
-            // Console.WriteLine($"Playing playsound: {playsound}");
-            // Console.WriteLine($"Path: {soundPath}");
-            // Console.WriteLine($"Playsound details: \r\n" +
-            //                   $"Author: {track.Author} \r\n" +
-            //                   $"Title: {track.Title} \r\n" +
-            //                   $"Length: {track.Length}");
-
-   
-            conn.PlaybackFinished += async (c, args) =>
-            {
-               
-                await c.DisconnectAsync();
-            };
+            // var track = result.Tracks.First();
+            //
+            // //connect to channel
+            // var conn = await node.ConnectAsync(channel);
+            //
+            // //add to queue 
+            //
+            //
+            // //lavalink play
+            // //await conn.PlayAsync(result.Tracks.First());
+            //
+            //
+            // // Console.WriteLine($"Playing playsound: {playsound}");
+            // // Console.WriteLine($"Path: {soundPath}");
+            // // Console.WriteLine($"Playsound details: \r\n" +
+            // //                   $"Author: {track.Author} \r\n" +
+            // //                   $"Title: {track.Title} \r\n" +
+            // //                   $"Length: {track.Length}");
+            //
+            //
+            // conn.PlaybackFinished += async (c, args) => { await c.DisconnectAsync(); };
 
             // await LeaveVoiceChannelAsync(ctx);
         }
 
-        [Command("test")]
+        //[Command("holotest")]
         [RequireOwner]
         public async Task Playsound(CommandContext ctx)
         {
@@ -284,10 +291,7 @@ namespace HololivePlaySound
             var track = result.Tracks.First();
             await conn.PlayAsync(track);
 
-            conn.PlaybackFinished += async (sender, args) =>
-            {
-                await sender.DisconnectAsync();
-            };
+            conn.PlaybackFinished += async (sender, args) => { await sender.DisconnectAsync(); };
 
             // Console.WriteLine($"Playing playsound: {playsound}");
             // Console.WriteLine($"Path: {soundPath}");
@@ -299,27 +303,27 @@ namespace HololivePlaySound
             //await LeaveVoiceChannelAsync(ctx);
         }
 
-        [Command("stop")]
-        [RequireOwner]
-        public async Task StopTest(CommandContext ctx)
-        {
-            var lava = ctx.Client.GetLavalink();
-            var node = lava.GetIdealNodeConnection();
-            var conn = node.GetGuildConnection(ctx.Member.Guild);
-            await conn.StopAsync();
-            await conn.DisconnectAsync();
-        }
+        // [Command("holostop")]
+        // [RequireOwner]
+        // public async Task StopTest(CommandContext ctx)
+        // {
+        //     var lava = ctx.Client.GetLavalink();
+        //     var node = lava.GetIdealNodeConnection();
+        //     var conn = node.GetGuildConnection(ctx.Member.Guild);
+        //     await conn.StopAsync();
+        //     await conn.DisconnectAsync();
+        // }
 
-        private async Task<LavalinkNodeConnection> GetLavalinkNodeAsync(LavalinkExtension lava)
-        {
-            if (!lava.ConnectedNodes.Any())
-            {
-                //await ctx.RespondAsync("Lavalink connection not established");
-                return null;
-            }
-
-            return lava.GetIdealNodeConnection();
-        }
+        // private async Task<LavalinkNodeConnection> GetLavalinkNodeAsync(LavalinkExtension lava)
+        // {
+        //     if (!lava.ConnectedNodes.Any())
+        //     {
+        //         //await ctx.RespondAsync("Lavalink connection not established");
+        //         return null;
+        //     }
+        //
+        //     return lava.GetIdealNodeConnection();
+        // }
 
 
         private async Task<bool> LeaveVoiceChannelAsync(CommandContext ctx)
@@ -364,43 +368,43 @@ namespace HololivePlaySound
             return await PlaysoundLibrary.GetPlaysoundAsync(sound);
         }
 
-        [Command("live")]
+        [Command("hololive")]
         public async Task SoundCommandsAsync(CommandContext ctx)
         {
             var commands = await PlaysoundLibrary.GetAvailableCommandsAsync();
             await ctx.Member.SendMessageAsync($"Available playsounds: {commands}");
         }
-        
-        [Command("liveyeet")]
+
+        [Command("holoyeet")]
         [RequireUserPermissions(Permissions.Administrator)]
         // [RequirePermissions(Permissions.Administrator)]
-       
         public async Task StopPlaying(CommandContext ctx)
         {
-            Console.WriteLine($"Yeeting the bot.");
-            
-            var lavalink = ctx.Client.GetLavalink();
-            var node = lavalink.GetIdealNodeConnection();
-            
-            var conn = lavalink.GetGuildConnection(ctx.Guild);
-            if (conn == null) //No voice connections in guild
-            {
-                Console.WriteLine($"Bot is not connected to a voice channel in {ctx.Guild.Name}");
-                return;
-            }
+            // Console.WriteLine($"Yeeting the bot.");
+            //
+            // var lavalink = ctx.Client.GetLavalink();
+            // var node = lavalink.GetIdealNodeConnection();
+            //
+            // var conn = lavalink.GetGuildConnection(ctx.Guild);
+            // if (conn == null) //No voice connections in guild
+            // {
+            //     Console.WriteLine($"Bot is not connected to a voice channel in {ctx.Guild.Name}");
+            //     return;
+            // }
+            //
+            // await conn.StopAsync();
+            //
+            // await Task.Delay(250);
+            // if (conn.CurrentState.CurrentTrack == null) return;
+            //
+            // if (conn.IsConnected) await conn.DisconnectAsync();
 
-            if (conn.CurrentState.CurrentTrack == null) return;
-
-            await conn.StopAsync();
-
-            await Task.Delay(500);
-
-            if (conn.IsConnected) await conn.DisconnectAsync();
+            await PlaysoundSystem.LeaveVoice(ctx);
         }
 
-        [Command("reload")]
+        [Command("!holoreload")]
         [RequireOwner]
-        public async Task ReloadPlaysoundDatabase()
+        public async Task ReloadPlaysoundDatabase(CommandContext ctx)
         {
             await PlaysoundLibrary.ReloadDatabaseAsync();
         }

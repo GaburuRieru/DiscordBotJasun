@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
 namespace HololivePlaySound
 {
@@ -109,6 +110,8 @@ namespace HololivePlaySound
                 }
             }
 
+            // if (_playsoundPaths.Count > 0) await channel.SendMessageAsync($"Playsound database reloaded.");
+            // else await channel.SendMessageAsync($"Failed to reload playsound database; Check logs.");
         }
     }
 
