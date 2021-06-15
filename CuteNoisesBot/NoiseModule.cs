@@ -189,8 +189,8 @@ namespace CuteNoisesBot
         [Command("noise")]
         public async Task PlayNoise(CommandContext ctx, string sound)
         {
-            
-            await AudioLibrary.PlaysoundSystem.Play(ctx, await NoiseLibrary.GetNoise(sound));
+            //Console.WriteLine($"Getting sound {sound}");
+            await AudioLibrary.PlaysoundSystem.Play(ctx, await NoiseLibrary.GetNoise(sound), Cdn.ContentDomain);
 
             // if (sound == "korodisco")
             // {
@@ -377,6 +377,34 @@ namespace CuteNoisesBot
             // if (conn.IsConnected) await conn.DisconnectAsync();
 
             await AudioLibrary.PlaysoundSystem.LeaveVoice(ctx);
+        }
+
+        [Command("demo")]
+        [RequireOwner]
+        public async Task Demo(CommandContext ctx)
+        {
+            await PlayNoise(ctx, "horayo");
+            await Task.Delay(1000);     
+            await PlayNoise(ctx, "hihoney");
+            await Task.Delay(1000);
+            await PlayNoise(ctx, "faq");
+            await Task.Delay(1000);
+            await PlayNoise(ctx, "omaewa2");
+            await Task.Delay(1000);
+            await PlayNoise(ctx, "english");
+            await Task.Delay(1000);
+            await PlayNoise(ctx, "bakamitai");
+            await Task.Delay(1000);
+            await PlayNoise(ctx, "neneOhShit");
+            await Task.Delay(1000);
+            await PlayNoise(ctx, "yijianmei");
+            await Task.Delay(1000);
+            await PlayNoise(ctx, "hey");
+            await Task.Delay(1000);
+            await PlayNoise(ctx, "ccp");
+            await Task.Delay(1000);
+            await PlayNoise(ctx, "ameliaREE");
+            await Task.Delay(1000);
         }
     }
 }

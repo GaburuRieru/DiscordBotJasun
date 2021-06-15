@@ -8,6 +8,7 @@ namespace CuteNoisesBot
     public static class NoiseLibrary
     {
         private const string NoiseBank = "NoiseBank.json";
+        private const string NoiseFolder = "Noises";
 
         // private static Dictionary<string, string> _noises = new Dictionary<string, string>()
         // {
@@ -43,7 +44,7 @@ namespace CuteNoisesBot
 
             if (result == string.Empty) return string.Empty;
 
-            return Path.Combine("Noises", result);
+            return Path.Combine(NoiseFolder, result);
         }
 
         private static async Task<string> GetNoisePathFromNoiseBankAsync(string command)

@@ -1,26 +1,222 @@
 ﻿[
   {
     "Command": "horayo",
-    "Path": "horayo.mp3"
+    "Path": "horayo.mp3",
+    "SFW": true
   },
   {
-    "Command":"iamcrazy",
-    "Path":"I am crazy.mp3"
+    "Command": "iamcrazy",
+    "Path": "I am crazy.mp3",
+    "SFW": true
   },
   {
-    "Command":"kokodayokrooz",
-    "Path":"kokodayo.ogg"
+    "Command": "kokodayo",
+    "Path": "kokodayo.ogg",
+    "SFW": true
   },
   {
-    "Command":"kokodayokorone",
-    "Path":"kokodayo_korone.mp3"
+    "Command": "kokodayo2",
+    "Path": "kokodayo_korone.mp3",
+    "SFW": true
   },
   {
-    "Command":"pekopeko",
-    "Path":"PEKOPEKOPEKOPEKO.mp3"
+    "Command": "pekopeko",
+    "Path": "PEKOPEKOPEKOPEKO.mp3",
+    "SFW": true
   },
   {
-    "Command":"yubi",
-    "Path":"yubi.ogg"
+    "Command": "yubi",
+    "Path": "yubi.ogg",
+    "SFW": true
+  },
+  {
+    "Command": "mikoN",
+    "Path": "MikoN.ogg",
+    "SFW": false
+  },
+  {
+    "Command": "rushiaN",
+    "Path": "RushiaN.ogg",
+    "SFW": false
+  },
+  {
+    "Command": "paimon",
+    "Path": "paimon.ogg",
+    "SFW": true
+  },
+  {
+    "Command": "yubi2",
+    "Path": "yubi2.ogg",
+    "SFW": true
+  },
+  {
+    "Command": "ohimdie",
+    "Path": "OhImdie.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"faq",
+    "Path":"mikoFAQ.mp3",
+    "SFW": false
+  },
+  {
+    "Command":"haachama",
+    "Path":"hachama.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"bakamitai",
+    "Path":"bakamitai.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"rushia1",
+    "Path":"rushia1.mp3",
+    "SFW": true
+  },
+  {
+    "Command":"ahoy",
+    "Path":"ahoy.mp3",
+    "SFW": true
+  },
+  {
+    "Command":"hihoney",
+    "Path":"suiseihoney.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"haachamahoney",
+    "SFW": true
+  },
+  {
+    "Path":"haachamahoney.ogg",
+    "Command":"lamyhoney",
+    "Path":"lamy_hihoney.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"risuhoney",
+    "Path":"risu_hihoney.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"rushiahoney",
+    "Path":"rushia_hihoney.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"neneOhShit",
+    "Path":"NeneOhShit.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"koroneBonk",
+    "Path":"koroneBonk.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"matanene",
+    "Path":"matanene1.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"ameliaREE",
+    "Path":"ameliaREE.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"omaewa",
+    "Path":"omaewa.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"omaewa2",
+    "Path":"omaewa2.mp3",
+    "SFW": true
+  },
+  {
+    "Command":"hey",
+    "Path":"sansedou.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"ccp",
+    "Path":"ccpfront.ogg",
+    "SFW": false
+  },
+  {
+    "Command":"ccp2",
+    "Path":"ccpback.ogg",
+    "SFW": false
+  },
+  {
+    "Command":"erika",
+    "Path":"erika.ogg",
+    "SFW": false
+  },
+  {
+    "Command":"xuehuapiaopiao",
+    "Path":"xuehuapiaopiao.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"yijianmei",
+    "Path":"yijianmei.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"punoko",
+    "Path":"punoko.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"wrongdoor",
+    "Path":"Wrongdoor.mp3",
+    "SFW": true
+  },
+  {
+    "Command":"america",
+    "Path":"america.ogg",
+    "SFW": false
+  },
+  {
+    "Command":"pepelaugh",
+    "Path":"pepelaugh.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"english",
+    "Path":"english.ogg",
+    "SFW": false
+  },
+  {
+    "Command":"faq2",
+    "Path":"kizunaaifuckyou.ogg",
+    "SFW": false
+  },
+  {
+    "Command":"guraAra",
+    "Path":"guraAra.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"yodazo",
+    "Path":"YoDazo.ogg",
+    "SFW": true
+  },
+  {
+    "Command":"kesana",
+    "Path":"KesanaKesini.mp3",
+    "SFW": true
+  },
+  {
+    "Command":"stayathome",
+    "Path":"JustStayAtHome.mp3",
+    "SFW": true
+  },
+  {
+    "Command":"gae",
+    "Path":"gae.ogg",
+    "SFW": true
   }
 ]

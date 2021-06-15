@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
 using AudioLibrary;
@@ -93,27 +94,45 @@ namespace CuteNoisesBot
             {
                 Token = await TokenHandler.GetTokenAsync(),
                 TokenType = DSharpPlus.TokenType.Bot,
-                MinimumLogLevel = LogLevel.Debug
+                MinimumLogLevel = LogLevel.Information,
             });
+            
+            await _discordClient.ConnectAsync(new DiscordActivity("!noise", ActivityType.ListeningTo));
+            
+            //Get all regions available to the client
+            var voiceRegions = await _discordClient.ListVoiceRegionsAsync();
 
-            var endpoint = new ConnectionEndpoint()
+            var lavaNodeHost = await LavalinkConnection.GetNode("Singapore");
+
+            if (lavaNodeHost == null)
             {
-                Hostname = "127.0.0.1",
-                Port = 2333
+                Console.WriteLine($"No lavalink node config found.");
+                Console.WriteLine("Abort bot");
+                return;
+            }
+            
+            
+            
+            var endpointSg = new ConnectionEndpoint()
+            {
+                Hostname = lavaNodeHost.Hostname,
+                Port = lavaNodeHost.Port
             };
 
-            var lavalinkConfig = new LavalinkConfiguration()
+            var lavalinkConfigSg = new LavalinkConfiguration()
             {
-                Password = "ruru",
-                RestEndpoint = endpoint,
-                SocketEndpoint = endpoint
+                Password = lavaNodeHost.Password,
+                RestEndpoint = endpointSg,
+                SocketEndpoint = endpointSg,
+                Region = voiceRegions.First(x => x.Id == lavaNodeHost.RegionId) ,
             };
+            
 
             var lavalink = _discordClient.UseLavalink();
 
-            await _discordClient.ConnectAsync(new DiscordActivity("!noise", ActivityType.ListeningTo));
-            await lavalink.ConnectAsync(lavalinkConfig);
-
+            await lavalink.ConnectAsync(lavalinkConfigSg);
+            
+            
             var service = ConfigureServices();
             // var services = new ServiceCollection()
             //     .AddSingleton<NoiseModule>()
@@ -129,6 +148,26 @@ namespace CuteNoisesBot
 
             commands.RegisterCommands<NoiseModule>();
             //commands.RegisterCommands(Assembly.GetExecutingAssembly());
+
+            lavalink.NodeDisconnected += async (sender, args) =>
+            {
+                var disconnectedNodeEndpoint = args.LavalinkNode.NodeEndpoint;
+                var clean = args.IsCleanClose;
+                Console.WriteLine($"Node was disconnected. Disconnection was {(clean ? "clean" : "unclean")}");
+
+                // if (!clean)
+                // {
+                //     lavalink.ConnectedNodes.TryGetValue()
+                //     
+                //     Console.WriteLine($"Disconnection was not clean; Reconnecting to node every 30s");
+                //     LavalinkNodeConnection nodeConnection;
+                //     do
+                //     {
+                //         nodeConnection = await lavalink.ConnectAsync(lavalinkConfig);
+                //     } while (nodeConnection);
+                // }
+            };
+
 
             await Task.Delay(-1);
         }

@@ -23,6 +23,12 @@
 
   { "Command":"ameREE", "Path":"ameliaREE.ogg"},
 
-  { "Command":"suiseiH","Path":"SuiseiHiHoney.ogg"},
-  { "Command":"haachamaH","Path":"haachamahoney.ogg"}
+  { "Command":"hhSuisei","Path":"SuiseiHiHoney.ogg"},
+  { "Command":"hhHaachama","Path":"haachamahoney.ogg"},
+  { "Command":"hhCoco","Path":"coco_hihoney.ogg"},
+  { "Command":"hhRisu","Path":"risu_hihoney.ogg"},
+  { "Command":"hhRushia","Path":"rushia_hihoney.ogg"},
+  { "Command":"hhPekora","Path":"Pekora_hihoney.ogg"},
+  
+  { "Command":"araara","Path":"guraAra.ogg"}
 ]

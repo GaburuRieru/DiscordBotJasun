@@ -130,27 +130,11 @@ namespace HololivePlaySound
         {
             await ctx.RespondAsync($"Hi! This is the extra message: {extraMessage}.");
         }
-
-
-        //Join voice channel
-        //leave voice channel
-        //Play sound
-
-        // [Command("join")]
-        // [RequireOwner]
-        // public async Task JoinVoiceWithUser(CommandContext ctx)
-        // {
-        // }
-        //
-        // [Command("leave")]
-        // [RequireOwner]
-        // public async Task LeaveVoiceByUser(CommandContext ctx)
-        // {
-        // }
-
+        
         [Command("hololive")]
         public async Task Playsound(CommandContext ctx, string playsound)
         {
+            Console.WriteLine("getting sound");
             var soundPath = await GetPlaysoundPathAsync(playsound);
             if (string.IsNullOrEmpty(soundPath))
             {
@@ -158,7 +142,7 @@ namespace HololivePlaySound
                 return;
             }
 
-            await PlaysoundSystem.Play(ctx, soundPath);
+            await PlaysoundSystem.Play(ctx, soundPath, Cdn.ContentDomain);
 
             // //Check if command invoker is in a voice channel
             // var channel = (ctx.Member.VoiceState?.Channel == null)
@@ -402,11 +386,11 @@ namespace HololivePlaySound
             await PlaysoundSystem.LeaveVoice(ctx);
         }
 
-        [Command("!holoreload")]
-        [RequireOwner]
-        public async Task ReloadPlaysoundDatabase(CommandContext ctx)
-        {
-            await PlaysoundLibrary.ReloadDatabaseAsync();
-        }
+        // [Command("!holoreload")]
+        // [RequireOwner]
+        // public async Task ReloadPlaysoundDatabase(CommandContext ctx)
+        // {
+        //     await PlaysoundLibrary.ReloadDatabaseAsync();
+        // }
     }
 }

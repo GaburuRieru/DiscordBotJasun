@@ -21,6 +21,9 @@
       <Compile Remove="Modules.cs" />
       <None Include="Modules.cs" />
       <Compile Remove="TokenHandler.cs" />
+      <None Update="NoiseBank.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
