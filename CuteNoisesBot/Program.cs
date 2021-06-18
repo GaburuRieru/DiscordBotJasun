@@ -94,7 +94,7 @@ namespace CuteNoisesBot
             {
                 Token = await TokenHandler.GetTokenAsync(),
                 TokenType = DSharpPlus.TokenType.Bot,
-                MinimumLogLevel = LogLevel.Information,
+                MinimumLogLevel = LogLevel.Debug,
             });
             
             await _discordClient.ConnectAsync(new DiscordActivity("!noise", ActivityType.ListeningTo));
@@ -147,6 +147,8 @@ namespace CuteNoisesBot
             });
 
             commands.RegisterCommands<NoiseModule>();
+            commands.RegisterCommands<KurumiModule>();
+            
             //commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
             // lavalink.NodeDisconnected += async (sender, args) =>
@@ -181,6 +183,7 @@ namespace CuteNoisesBot
             //.AddSingleton<TestModule>()
             //.AddSingleton<VoiceChannelSimpleModule>()
             .AddSingleton<NoiseModule>()
+            .AddSingleton<KurumiModule>()
             .BuildServiceProvider();
     }
 }
