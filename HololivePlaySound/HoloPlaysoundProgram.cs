@@ -93,6 +93,7 @@ namespace HololivePlaySound
         //------------------------------------------------------------------------------------------------------------
 
         private DiscordClient _discordClient;
+        private LavalinkNodeConnection _lavalinkNodeConnection;
         
         private async Task MainAsyncDsharp()
         {
@@ -132,7 +133,8 @@ namespace HololivePlaySound
             //     ((await _discordClient.GetGuildAsync(831121644575260703)).GetChannel(848232664548376627)),
             //     voiceString.ToString());
 
-            var lavaNodeHost = await LavalinkConnection.GetNode("Singapore");
+           // var lavaNodeHost = await LavalinkConnection.GetNode("Singapore");
+           var lavaNodeHost = await LavalinkConnection.GetNode("localhost");
 
             if (lavaNodeHost == null)
             {
@@ -151,15 +153,16 @@ namespace HololivePlaySound
 
             var lavalinkConfigSg = new LavalinkConfiguration()
             {
+                SocketAutoReconnect = true,
                 Password = lavaNodeHost.Password,
                 RestEndpoint = endpointSg,
                 SocketEndpoint = endpointSg,
-                Region = voiceRegions.First(x => x.Id == lavaNodeHost.RegionId) 
+                Region = voiceRegions.FirstOrDefault(x => x.Id == lavaNodeHost.RegionId)
             };
 
             var lavalink = _discordClient.UseLavalink();
 
-            await lavalink.ConnectAsync(lavalinkConfigSg);
+            _lavalinkNodeConnection = await lavalink.ConnectAsync(lavalinkConfigSg);
 
             var services = new ServiceCollection()
                 .AddSingleton<HololiveModule>()
@@ -174,6 +177,13 @@ namespace HololivePlaySound
 
             commands.RegisterCommands<HololiveModule>();
 
+            _lavalinkNodeConnection.LavalinkSocketErrored += async (sender, args) =>
+            {
+                Console.WriteLine($"LavalinkSocketException occured: {args.Exception.StackTrace}");
+            };
+            
+            
+
             //await PlaysoundLibrary.ReloadDatabaseAsync();
             
             //commands.RegisterCommands(Assembly.GetExecutingAssembly());
@@ -184,9 +194,37 @@ namespace HololivePlaySound
             //      Console.WriteLine($"Command: {args.Command} failed. Reason: {args.Exception}");
             // };
             
-            
-            
+            // lavalink.NodeDisconnected += (sender, args) =>
+            // {
+            //     
+            // } 
 
+            
+            LavalinkConnection.AutoReconnectUnclean(_lavalinkNodeConnection,lavalinkConfigSg);
+            // _lavalinkNodeConnection.Disconnected += async (sender, args) =>
+            // {
+            //     if (args.IsCleanClose) return;
+            //     
+            //     Console.WriteLine($"Unclean disconnection of node {args.LavalinkNode.NodeEndpoint.Hostname} \n" +
+            //                       $"Attempting to reconnect to disconnected node.");
+            //     do
+            //     {
+            //         int countdown = 15;
+            //         while (countdown > 0)
+            //         {
+            //             Console.WriteLine($"Reconnecting in {countdown.ToString()} seconds..");
+            //             await Task.Delay(1000);
+            //             countdown--;
+            //         }
+            //         
+            //         if (_lavalinkNodeConnection.IsConnected) break;
+            //         _lavalinkNodeConnection = await lavalink.ConnectAsync(lavalinkConfigSg).ConfigureAwait(false);
+            //         //await Task.Delay(15000);
+            //     } while (!_lavalinkNodeConnection.IsConnected);
+            //     
+            //     Console.WriteLine($"Reconnected to node.");
+            // };
+            
             await Task.Delay(-1);
         }
 

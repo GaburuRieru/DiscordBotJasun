@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AudioLibrary;
 using Discord;
@@ -384,6 +385,13 @@ namespace HololivePlaySound
             // if (conn.IsConnected) await conn.DisconnectAsync();
 
             await PlaysoundSystem.LeaveVoice(ctx);
+        }
+
+        [Command("node")]
+        [RequireOwner]
+        public async Task GetNode(CommandContext ctx)
+        {
+            await PlaysoundSystem.SeeNode(ctx);
         }
 
         // [Command("!holoreload")]

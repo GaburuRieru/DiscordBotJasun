@@ -8,11 +8,19 @@ namespace AudioLibrary
         private static Dictionary<ulong, Queue<LavalinkTrack>> _guildQueue =
             new Dictionary<ulong, Queue<LavalinkTrack>>();
 
-        public static int QueuedTracks(ulong guildId) => _guildQueue.ContainsKey(guildId) ? _guildQueue[guildId].Count : 0;
+        public static int QueuedTracks(ulong guildId) =>
+            _guildQueue.ContainsKey(guildId) ? _guildQueue[guildId].Count : 0;
 
         public static bool TryGetTracks(ulong guildId, out Queue<LavalinkTrack> tracks)
         {
             return _guildQueue.TryGetValue(guildId, out tracks);
+        }
+
+        public static void ClearTracks(ulong guildId)
+        {
+            if (!_guildQueue.ContainsKey(guildId)) return;
+            _guildQueue[guildId].Clear();
+            _guildQueue.Remove(guildId);
         }
 
         public static void EnqueueTrack(ulong guildId, LavalinkTrack track)

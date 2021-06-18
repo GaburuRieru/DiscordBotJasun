@@ -130,7 +130,7 @@ namespace CuteNoisesBot
 
             var lavalink = _discordClient.UseLavalink();
 
-            await lavalink.ConnectAsync(lavalinkConfigSg);
+            var node = await lavalink.ConnectAsync(lavalinkConfigSg);
             
             
             var service = ConfigureServices();
@@ -149,26 +149,27 @@ namespace CuteNoisesBot
             commands.RegisterCommands<NoiseModule>();
             //commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
-            lavalink.NodeDisconnected += async (sender, args) =>
-            {
-                var disconnectedNodeEndpoint = args.LavalinkNode.NodeEndpoint;
-                var clean = args.IsCleanClose;
-                Console.WriteLine($"Node was disconnected. Disconnection was {(clean ? "clean" : "unclean")}");
+            // lavalink.NodeDisconnected += async (sender, args) =>
+            // {
+            //     var disconnectedNodeEndpoint = args.LavalinkNode.NodeEndpoint;
+            //     var clean = args.IsCleanClose;
+            //     Console.WriteLine($"Node was disconnected. Disconnection was {(clean ? "clean" : "unclean")}");
+            //
+            //     // if (!clean)
+            //     // {
+            //     //     lavalink.ConnectedNodes.TryGetValue()
+            //     //     
+            //     //     Console.WriteLine($"Disconnection was not clean; Reconnecting to node every 30s");
+            //     //     LavalinkNodeConnection nodeConnection;
+            //     //     do
+            //     //     {
+            //     //         nodeConnection = await lavalink.ConnectAsync(lavalinkConfig);
+            //     //     } while (nodeConnection);
+            //     // }
+            // };
 
-                // if (!clean)
-                // {
-                //     lavalink.ConnectedNodes.TryGetValue()
-                //     
-                //     Console.WriteLine($"Disconnection was not clean; Reconnecting to node every 30s");
-                //     LavalinkNodeConnection nodeConnection;
-                //     do
-                //     {
-                //         nodeConnection = await lavalink.ConnectAsync(lavalinkConfig);
-                //     } while (nodeConnection);
-                // }
-            };
-
-
+            LavalinkConnection.AutoReconnectUnclean(node, lavalinkConfigSg);
+            
             await Task.Delay(-1);
         }
 

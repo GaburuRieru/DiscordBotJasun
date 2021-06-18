@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CuteNoisesBot;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Lavalink.EventArgs;
@@ -42,7 +43,7 @@ namespace AudioLibrary
                 await ctx.RespondAsync("Lavalink not initalized.");
                 return;
             }
-
+            
             //Only one node for now, so use it 
             //var node = lava.GetIdealNodeConnection();
             //var node = lava.ConnectedNodes.FirstOrDefault().Value;
@@ -247,6 +248,25 @@ namespace AudioLibrary
             //await Task.Delay(250);
 
             if (conn.IsConnected) await conn.DisconnectAsync();
+        }
+
+
+        public static async Task SeeNode(CommandContext ctx)
+        {
+            var lava = ctx.Client.GetLavalink();
+
+            if (lava.ConnectedNodes.Count == 0)
+            {
+                await ctx.Channel.SendMessageAsync($"No nodes found for this lava client.");
+                return;
+            }
+
+            var node = lava.ConnectedNodes.First();
+
+
+
+            var message = $"Node is from {node.Key.Hostname}";
+            await ctx.Channel.SendMessageAsync(message);
         }
     }
 }
