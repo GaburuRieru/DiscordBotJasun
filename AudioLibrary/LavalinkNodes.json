@@ -1,0 +1,20 @@
+[
+  {
+    "Name": "Localhost",
+    "Cloud": "Local",
+    "RegionId": "local",
+    "Hostname": "127.0.0.1",
+    "Port": 6969,
+    "Password": "ruru"
+  },
+  {
+    "Name": "Singapore",
+    "Cloud": "AWS",
+    "RegionId": "singapore",
+    "Hostname": "13.212.221.134",
+    "Port": 6969,
+    "Password": "ruru"
+  }
+]
+
+
