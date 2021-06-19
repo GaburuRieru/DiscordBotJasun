@@ -94,7 +94,7 @@ namespace CuteNoisesBot
             {
                 Token = await TokenHandler.GetTokenAsync(),
                 TokenType = DSharpPlus.TokenType.Bot,
-                MinimumLogLevel = LogLevel.Debug,
+                MinimumLogLevel = LogLevel.Information,
             });
             
             await _discordClient.ConnectAsync(new DiscordActivity("!noise", ActivityType.ListeningTo));
