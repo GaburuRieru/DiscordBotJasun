@@ -133,8 +133,8 @@ namespace HololivePlaySound
             //     ((await _discordClient.GetGuildAsync(831121644575260703)).GetChannel(848232664548376627)),
             //     voiceString.ToString());
 
-           // var lavaNodeHost = await LavalinkConnection.GetNode("Singapore");
-           var lavaNodeHost = await LavalinkConnection.GetNode("localhost");
+           var lavaNodeHost = await LavalinkConnection.GetNode("Singapore");
+           //var lavaNodeHost = await LavalinkConnection.GetNode("localhost");
 
             if (lavaNodeHost == null)
             {
