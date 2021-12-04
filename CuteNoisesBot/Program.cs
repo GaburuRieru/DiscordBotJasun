@@ -148,6 +148,7 @@ namespace CuteNoisesBot
 
             commands.RegisterCommands<NoiseModule>();
             commands.RegisterCommands<KurumiModule>();
+            commands.RegisterCommands<AkkunModule>();
             
             //commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
@@ -184,6 +185,7 @@ namespace CuteNoisesBot
             //.AddSingleton<VoiceChannelSimpleModule>()
             .AddSingleton<NoiseModule>()
             .AddSingleton<KurumiModule>()
+            .AddSingleton<AkkunModule>()
             .BuildServiceProvider();
     }
 }
