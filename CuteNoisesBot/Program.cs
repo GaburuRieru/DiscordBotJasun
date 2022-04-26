@@ -102,11 +102,13 @@ namespace CuteNoisesBot
             //Get all regions available to the client
             var voiceRegions = await _discordClient.ListVoiceRegionsAsync();
 
-            var lavaNodeHost = await LavalinkConnection.GetNode("Singapore");
+            var lavaRegion = await LavalinkHandler.GetLavalinkRegion();
+            
+            var lavaNodeHost = await LavalinkConnection.GetNode(lavaRegion);
 
             if (lavaNodeHost == null)
             {
-                Console.WriteLine($"No lavalink node config found.");
+                Console.WriteLine($"No lavalink node config found for region: {lavaRegion}.");
                 Console.WriteLine("Abort bot");
                 return;
             }
