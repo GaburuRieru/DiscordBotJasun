@@ -15,7 +15,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Net;
 using Microsoft.Extensions.DependencyInjection;
-
 using Microsoft.Extensions.Logging;
 using TokenType = Discord.TokenType;
 
@@ -29,7 +28,6 @@ namespace CuteNoisesBot
             //Console.WriteLine("Hello World!");
             //new Program().MainAsync().GetAwaiter().GetResult();
             new Program().MainDsharpAsync().GetAwaiter().GetResult();
-
         }
 
         // private DiscordSocketClient _client;
@@ -96,43 +94,59 @@ namespace CuteNoisesBot
                 TokenType = DSharpPlus.TokenType.Bot,
                 MinimumLogLevel = LogLevel.Information,
             });
-            
+
             await _discordClient.ConnectAsync(new DiscordActivity("!noise", ActivityType.ListeningTo));
-            
+
             //Get all regions available to the client
             var voiceRegions = await _discordClient.ListVoiceRegionsAsync();
 
-            var lavaNodeHost = await LavalinkConnection.GetNode("Singapore");
+            var lavaRegion = await LavalinkHandler.GetLavalinkRegion();
+
+            var lavaNodeHost = await LavalinkConnection.GetNode(lavaRegion);
 
             if (lavaNodeHost == null)
             {
-                Console.WriteLine($"No lavalink node config found.");
+                Console.WriteLine($"No lavalink node config found for region: {lavaRegion}.");
                 Console.WriteLine("Abort bot");
                 return;
             }
-            
-            
-            
+
+
             var endpointSg = new ConnectionEndpoint()
             {
                 Hostname = lavaNodeHost.Hostname,
                 Port = lavaNodeHost.Port
             };
 
-            var lavalinkConfigSg = new LavalinkConfiguration()
-            {
-                Password = lavaNodeHost.Password,
-                RestEndpoint = endpointSg,
-                SocketEndpoint = endpointSg,
-                Region = voiceRegions.First(x => x.Id == lavaNodeHost.RegionId) ,
-            };
+            var lavalinkConfigSg = new LavalinkConfiguration();
             
+            if (lavaRegion == "Localhost")
+            {
+                lavalinkConfigSg = new LavalinkConfiguration()
+                {
+                    Password = lavaNodeHost.Password,
+                    RestEndpoint = endpointSg,
+                    SocketEndpoint = endpointSg
+                };
+            }
+
+            else
+            {
+                lavalinkConfigSg = new LavalinkConfiguration()
+                {
+                    Password = lavaNodeHost.Password,
+                    RestEndpoint = endpointSg,
+                    SocketEndpoint = endpointSg,
+                    Region = voiceRegions.First(x => x.Id == lavaNodeHost.RegionId),
+                };
+            }
+
 
             var lavalink = _discordClient.UseLavalink();
 
             var node = await lavalink.ConnectAsync(lavalinkConfigSg);
-            
-            
+
+
             var service = ConfigureServices();
             // var services = new ServiceCollection()
             //     .AddSingleton<NoiseModule>()
@@ -149,7 +163,7 @@ namespace CuteNoisesBot
             commands.RegisterCommands<NoiseModule>();
             commands.RegisterCommands<KurumiModule>();
             commands.RegisterCommands<AkkunModule>();
-            
+
             //commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
             // lavalink.NodeDisconnected += async (sender, args) =>
@@ -172,7 +186,7 @@ namespace CuteNoisesBot
             // };
 
             LavalinkConnection.AutoReconnectUnclean(node, lavalinkConfigSg);
-            
+
             await Task.Delay(-1);
         }
 
