@@ -11,4 +11,5 @@ CuteNoisesBot:
 HololivePlaySound:
 - Like CuteNoisesBot but made for playsound clips from various Hololive Vtubers
 
-Hosted on Linux VMs either self-hosted or cloud sites like AWS.
+NOTE* Hosted on Linux VMs either self-hosted or cloud sites like AWS.
+NOTE** The bots in this repo are inactive and currently archived.
