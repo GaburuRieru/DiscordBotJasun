@@ -3,6 +3,7 @@ DiscordBotsV1.0
 
 Repository for .NET based discord bots by GaburuRieru
 Uses the unofficial discord bot wrapper by DISCORD.NET
+Utilises Lavalink as voice module.
 
 CuteNoisesBot:
 - Bot that plays anime voices
